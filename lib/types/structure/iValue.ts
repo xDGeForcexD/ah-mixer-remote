@@ -1,5 +1,5 @@
 interface IValue {
-    value: string;
+    value: number | Boolean;
     unit: string;
 }
 

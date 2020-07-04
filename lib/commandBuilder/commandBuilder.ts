@@ -6,6 +6,8 @@ abstract class CommandBuilder {
             this.midiChannel = midiChannel;
         }
     }
+
+    abstract isPackageForMe(data: string) : Boolean
 }
 
 export default CommandBuilder;
