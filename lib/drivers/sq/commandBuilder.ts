@@ -30,21 +30,21 @@ class CommandBuilderSQ extends CommandBuilder {
         this.lsbRange = lsbRange;
     }
 
-    toSendValue(msb: number, lsb: number, vc: number, vf: number) : string {
+    toSendValue(msb: number, lsb: number, vc: number, vf: number) : Uint8Array {
         let data = [...this.formatValue];
         data[this.PLACE_MSB] = msb;
         data[this.PLACE_LSB] = lsb;
         data[this.PLACE_VC] = vc;
         data[this.PLACE_VF] = vf;
-        return data.join(" ");
+        return new Uint8Array(data);
     }
 
-    toSendDec(msb: number, lsb: number) : string {
-        return this.toSendDecInc(msb, lsb, 0x61).join(" ");
+    toSendDec(msb: number, lsb: number) : Uint8Array {
+        return new Uint8Array(this.toSendDecInc(msb, lsb, 0x61));
     }
 
-    toSendInc(msb: number, lsb: number) : string {
-        return this.toSendDecInc(msb, lsb, 0x60).join(" ");
+    toSendInc(msb: number, lsb: number) : Uint8Array {
+        return new Uint8Array(this.toSendDecInc(msb, lsb, 0x60));
     }
 
     private toSendDecInc(msb: number, lsb: number, option: number) : number [] {
@@ -55,19 +55,19 @@ class CommandBuilderSQ extends CommandBuilder {
         return data;
     }
 
-    toGetValue(msb: number, lsb: number) : string {
+    toGetValue(msb: number, lsb: number) : Uint8Array {
         let data = this.toSendDecInc(msb, lsb, 0x60);
         data[this.PLACE_VC] = 0x7f;
-        return data.join(" ");
+        return new Uint8Array(data);
     }
     
-    isPackageForMe(data: string | {msb: number, lsb: number}) : Boolean {
+    isPackageForMe(data: Uint8Array | {msb: number, lsb: number}) : Boolean {
         if(this.msbRange === null || this.lsbRange === null) {
             return false;
         }
 
         let dataParsed : {msb: number, lsb: number};
-        if(typeof data === "string") {
+        if(data instanceof Uint8Array) {
             dataParsed = this.parseReceiver(data);
         } else {
             dataParsed = data;
@@ -82,25 +82,12 @@ class CommandBuilderSQ extends CommandBuilder {
         return false;
     }
 
-    parseReceiver(data: string) : {msb: number, lsb: number} {
-        let dataParsed = this.parseData(data);
-        return {msb: dataParsed[this.PLACE_MSB], lsb: dataParsed[this.PLACE_LSB]};
+    parseReceiver(data: Uint8Array) : {msb: number, lsb: number} {
+        return {msb: data[this.PLACE_MSB], lsb: data[this.PLACE_LSB]};
     }
 
-    parseValue(data: string) : {vc: number, vf: number} {
-        let dataParsed = this.parseData(data);
-        return {vc: dataParsed[this.PLACE_VC], vf: dataParsed[this.PLACE_VF]};
-    }
-
-    parseData(data: string) : number[] {
-        let dataSplit = data.split(" ");
-        let dataParsed : number[] = [];
-
-        for(let command in dataSplit) {
-            dataParsed.push(parseInt(dataSplit[command]));
-        }
-
-        return dataParsed;
+    parseValue(data: Uint8Array) : {vc: number, vf: number} {
+        return {vc: data[this.PLACE_VC], vf: data[this.PLACE_VF]};
     }
 }
 

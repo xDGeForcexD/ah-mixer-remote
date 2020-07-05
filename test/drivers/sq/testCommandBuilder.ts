@@ -15,31 +15,66 @@ describe("TestCommandBuilderSQ", function() {
 
     it("toSendValue", function() {
         let data = commandBuilder.toSendValue(1, 2, 3, 4);
-        expect(data).to.be.eq("177 99 1 177 98 2 177 6 3 177 38 4");
+        expect(data[0]).to.be.eq(177);
+        expect(data[1]).to.be.eq(99);
+        expect(data[2]).to.be.eq(1);
+        expect(data[3]).to.be.eq(177);
+        expect(data[4]).to.be.eq(98);
+        expect(data[5]).to.be.eq(2);
+        expect(data[6]).to.be.eq(177);
+        expect(data[7]).to.be.eq(6);
+        expect(data[8]).to.be.eq(3);
+        expect(data[9]).to.be.eq(177);
+        expect(data[10]).to.be.eq(38);
+        expect(data[11]).to.be.eq(4);
     });
 
     it("toSendDec", function() {
         let data = commandBuilder.toSendDec(5, 8);
-        expect(data).to.be.eq("177 99 5 177 98 8 177 97 0");
+        expect(data[0]).to.be.eq(177);
+        expect(data[1]).to.be.eq(99);
+        expect(data[2]).to.be.eq(5);
+        expect(data[3]).to.be.eq(177);
+        expect(data[4]).to.be.eq(98);
+        expect(data[5]).to.be.eq(8);
+        expect(data[6]).to.be.eq(177);
+        expect(data[7]).to.be.eq(97);
+        expect(data[8]).to.be.eq(0);
     });
 
     it("toSendInc", function() {
         let data = commandBuilder.toSendInc(3, 6);
-        expect(data).to.be.eq("177 99 3 177 98 6 177 96 0");
+        expect(data[0]).to.be.eq(177);
+        expect(data[1]).to.be.eq(99);
+        expect(data[2]).to.be.eq(3);
+        expect(data[3]).to.be.eq(177);
+        expect(data[4]).to.be.eq(98);
+        expect(data[5]).to.be.eq(6);
+        expect(data[6]).to.be.eq(177);
+        expect(data[7]).to.be.eq(96);
+        expect(data[8]).to.be.eq(0);
     });
 
     it("toGetValue", function() {
         let data = commandBuilder.toGetValue(8, 52);
-        expect(data).to.be.eq("177 99 8 177 98 52 177 96 127");
+        expect(data[0]).to.be.eq(177);
+        expect(data[1]).to.be.eq(99);
+        expect(data[2]).to.be.eq(8);
+        expect(data[3]).to.be.eq(177);
+        expect(data[4]).to.be.eq(98);
+        expect(data[5]).to.be.eq(52);
+        expect(data[6]).to.be.eq(177);
+        expect(data[7]).to.be.eq(96);
+        expect(data[8]).to.be.eq(127);
     });
     
     it("isPackageForMe (string input / no range set)", function() {
-        expect(commandBuilder.isPackageForMe("177 99 3 177 98 8 177 6 3 177 38 4")).to.be.false;
+        expect(commandBuilder.isPackageForMe(new Uint8Array([177,99,3,177,98,8,177,6,3,177,38,4]))).to.be.false;
     });
 
     it("isPackageForMe (string input / range set)", function() {
         commandBuilder.setReceiverRange({from: 10, to: 20}, {from: 5, to: 5});
-        expect(commandBuilder.isPackageForMe("177 99 11 177 98 5 177 6 3 177 38 4")).to.be.true;
+        expect(commandBuilder.isPackageForMe(new Uint8Array([177,99,11,177,98,5,177,6,3,177,38,4]))).to.be.true;
     });
 
     it("isPackageForMe (msb & lsb input / no range set)", function() {
@@ -62,13 +97,13 @@ describe("TestCommandBuilderSQ", function() {
     });
 
     it("parseReceiver", function() {
-        let data = commandBuilder.parseReceiver("177 99 3 177 98 8 177 6 3 177 38 4");
+        let data = commandBuilder.parseReceiver(new Uint8Array([177,99,3,177,98,8,177,6,3,177,38,4]));
         expect(data.msb, "msb").to.be.eq(3);
         expect(data.lsb, "lsb").to.be.eq(8);
     });
 
     it("parseValue", function() {
-        let data = commandBuilder.parseValue("177 99 1 177 98 2 177 6 6 177 38 4");
+        let data = commandBuilder.parseValue(new Uint8Array([177,99,3,177,98,8,177,6,6,177,38,4]));
         expect(data.vc, "vc").to.be.eq(6);
         expect(data.vf, "vf").to.be.eq(4);
     });

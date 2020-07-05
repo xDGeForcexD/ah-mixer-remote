@@ -84,18 +84,21 @@ describe("TestCommunicator", function() {
     it("send message one", function() {
         let writeCall = sandbox.spy(net.Socket.prototype, "write");
         communicator.connectedServer = true;
-        communicator.write("testdata");
-        expect(writeCall.calledOnceWith("testdata")).to.be.true;
+        let data = new Uint8Array([1, 2, 3, 4]);
+        communicator.write(data);
+        expect(writeCall.calledOnceWith(data)).to.be.true;
     });
 
     it("send message two", function() {
         let writeCall = sandbox.spy(net.Socket.prototype, "write");
         communicator.connectedServer = true;
-        communicator.write("testdata");
-        communicator.write("testdata2");
-        expect(writeCall.calledOnceWith("testdata"), "send message one").to.be.true;
+        let data = new Uint8Array([1, 2, 3, 4]);
+        let data2 = new Uint8Array([5, 6, 7, 8]);
+        communicator.write(data);
+        communicator.write(data2);
+        expect(writeCall.calledOnceWith(data), "send message one").to.be.true;
         fakeTimer.tick(100);
-        expect(writeCall.calledWith("testdata2"), "send message two").to.be.true;
+        expect(writeCall.calledWith(data2), "send message two").to.be.true;
         expect(writeCall.calledTwice, "only two message was send").to.be.true;
     });
 

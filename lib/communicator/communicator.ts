@@ -1,7 +1,6 @@
 import Driver from "../driver/driver";
 import {Socket} from "net";
 import ICallbackReceive from "../types/functions/iCallbackReceive";
-import { send } from "process";
 
 class Communicator {
     receiver : ICallbackReceive[] = [];
@@ -14,7 +13,7 @@ class Communicator {
     
     timeoutConnect : NodeJS.Timeout  | null = null;
 
-    queue : string[] = [];
+    queue : Uint8Array[] = [];
     intervalQueue : NodeJS.Timeout | null = null;
 
     constructor(driver: Driver) {
@@ -27,26 +26,43 @@ class Communicator {
         this.client.on('close', this.close.bind(this));
     }
 
+    /**
+     * Enable Connection to the mixer
+     */
     connect() : void {
         this.enable = true;
         this.startConnection();
     }
 
+    /**
+     * Disable Connection to the mixer
+     */
     disconnect() : void {
         this.enable = false;
         this.client.end();
     }
 
+    /**
+     * Returns true if mixer is connected
+     * @returns boolean if mixer is connected
+     */
     isConnected() : Boolean {
         return this.connectedServer;
     }
 
+    /**
+     * Repeat Connection after wait time
+     * @param timeout time in milli seconds to wait
+     */
     private launchTimeoutConnect(timeout : number = 5000) {
         if(this.enable && this.timeoutConnect === null) {
             this.timeoutConnect = setTimeout(this.startConnection.bind(this), timeout);
         }
     }
 
+    /**
+     * Clear Timeout Connect
+     */
     private clearTimeoutConnect() {
         if(this.timeoutConnect !== null) {
             clearTimeout(this.timeoutConnect);
@@ -54,6 +70,9 @@ class Communicator {
         }
     }
 
+    /**
+     * Start connection to the mixer
+     */
     private startConnection() {
         this.client.connect({
             port: this.driver.port,
@@ -61,26 +80,45 @@ class Communicator {
         });
     }
 
+    /**
+     * Handler if connections is establish
+     */
     private connected(error : any) {
         this.connectedServer = true;
         this.clearTimeoutConnect();
     }
 
-    private read(data : string) {
+    /**
+     * Handler if data is comming in
+     * @param data Uint8 Array with received data
+     */
+    private read(data : Uint8Array) {
         this.receiver.forEach((callback) => callback(data)); 
     }
 
+    /**
+     * Handler if connection is broken
+     * @param error error message
+     */
     private error(error : any) {
         this.connectedServer = false;
         this.launchTimeoutConnect(1000);
     }
 
+    /**
+     * Handler if connection is closed
+     * @param error error message
+     */
     private close(error : any) {
         this.connectedServer = false;
         this.launchTimeoutConnect();
     }
 
-    write(data: string) : void {
+    /**
+     * Send message to mixer
+     * @param data UInt8 with data to send
+     */
+    write(data: Uint8Array) : void {
         this.queue.push(data);
         
         if(this.intervalQueue === null) {
@@ -101,6 +139,10 @@ class Communicator {
         }
     }
 
+    /**
+     * Add Receiver Callbacks to receive message
+     * @param callback callback function
+     */
     addReceiver(callback: ICallbackReceive) : void {
         this.receiver.push(callback);
     }

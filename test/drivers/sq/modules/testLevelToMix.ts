@@ -49,13 +49,16 @@ describe("TestModuleSQLevelToMix", function() {
     it("setValueMix LR", function() {
         let writeStub = communicatorMock.mock("write", "");
         writeStub.callsFake(function(data: string) {});
-        let sendStub = commandBuilderMock.mock("toSendValue", "testdata1");
-        sendStub.callsFake(function(msb: number, lsb: number, vc: number, vf: number) : string {
+
+        let data = new Uint8Array([1,2,3,4]);
+
+        let sendStub = commandBuilderMock.mock("toSendValue", data);
+        sendStub.callsFake(function(msb: number, lsb: number, vc: number, vf: number) : Uint8Array {
             expect(msb, "msb").to.be.eq(0x40);
             expect(lsb, "lsb").to.be.eq(0x1a);
             expect(vc, "vc").to.be.eq(0x7b);
             expect(vf, "vf").to.satisfy(function(num: number) { return num >= 0x2d && num <= 0x2f; });
-            return "testdata1";
+            return data;
         });
 
         let value = new ValueLevel(5);
@@ -64,19 +67,22 @@ describe("TestModuleSQLevelToMix", function() {
         levelToMix.setValueMix(Mixes.LR, 27, value);
 
         expect(sendStub.calledOnce, "called commandBuilder").to.be.true;
-        expect(writeStub.calledOnceWith("testdata1"), "called communicator write").to.be.true;
+        expect(writeStub.calledOnceWith(data), "called communicator write").to.be.true;
     });
 
     it("setValueMix Aux 3", function() {
         let writeStub = communicatorMock.mock("write", "");
         writeStub.callsFake(function(data: string) {});
-        let sendStub = commandBuilderMock.mock("toSendValue", "testdata2");
-        sendStub.callsFake(function(msb: number, lsb: number, vc: number, vf: number) : string {
+
+        let data = new Uint8Array([5,3,5,6]);
+
+        let sendStub = commandBuilderMock.mock("toSendValue", data);
+        sendStub.callsFake(function(msb: number, lsb: number, vc: number, vf: number) : Uint8Array {
             expect(msb, "msb").to.be.eq(0x40);
             expect(lsb, "lsb").to.be.eq(0x76);
             expect(vc, "vc").to.be.eq(0x53);
             expect(vf, "vf").to.satisfy(function(num: number) { return num >= 0x3b && num <= 0x3d; });
-            return "testdata2";
+            return data;
         });
 
         let value = new ValueLevel(-38);
@@ -85,19 +91,22 @@ describe("TestModuleSQLevelToMix", function() {
         levelToMix.setValueMix(Mixes.Aux3, 5, value);
 
         expect(sendStub.calledOnce, "called commandBuilder").to.be.true;
-        expect(writeStub.calledOnceWith("testdata2"), "called communicator write").to.be.true;
+        expect(writeStub.calledOnceWith(data), "called communicator write").to.be.true;
     });
 
     it("setValueMix Aux 8", function() {
         let writeStub = communicatorMock.mock("write", "");
         writeStub.callsFake(function(data: string) {});
-        let sendStub = commandBuilderMock.mock("toSendValue", "testdata3");
-        sendStub.callsFake(function(msb: number, lsb: number, vc: number, vf: number) : string {
+
+        let data = new Uint8Array([8,7,6,5]);
+
+        let sendStub = commandBuilderMock.mock("toSendValue", data);
+        sendStub.callsFake(function(msb: number, lsb: number, vc: number, vf: number) : Uint8Array {
             expect(msb, "msb").to.be.eq(0x43);
             expect(lsb, "lsb").to.be.eq(0x57);
             expect(vc, "vc").to.be.eq(0x6d);
             expect(vf, "vf").to.satisfy(function(num: number) { return num >= 0x38 && num <= 0x3A; });
-            return "testdata3";
+            return data;
         });
 
         let value = new ValueLevel(-10);
@@ -106,7 +115,7 @@ describe("TestModuleSQLevelToMix", function() {
         levelToMix.setValueMix(Mixes.Aux8, 34, value);
 
         expect(sendStub.calledOnce, "called commandBuilder").to.be.true;
-        expect(writeStub.calledOnceWith("testdata3"), "called communicator write").to.be.true;
+        expect(writeStub.calledOnceWith(data), "called communicator write").to.be.true;
     });
 
     it("setValueMix throw no communicator", function() {
@@ -144,18 +153,21 @@ describe("TestModuleSQLevelToMix", function() {
     it("requestValueMix Aux 5", function() {
         let writeStub = communicatorMock.mock("write", "");
         writeStub.callsFake(function(data: string) {});
-        let sendStub = commandBuilderMock.mock("toGetValue", "testdata4");
-        sendStub.callsFake(function(msb: number, lsb: number) : string {
+
+        let data = new Uint8Array([1,2,3,4]);
+
+        let sendStub = commandBuilderMock.mock("toGetValue", data);
+        sendStub.callsFake(function(msb: number, lsb: number) : Uint8Array {
             expect(msb, "msb").to.be.eq(0x44);
             expect(lsb, "lsb").to.be.eq(0x34);
-            return "testdata4";
+            return data;
         });
 
         levelToMix.setCommunicator(communicator);
         levelToMix.requestValueMix(Mixes.Aux5, 42);
 
         expect(sendStub.calledOnce, "called commandBuilder").to.be.true;
-        expect(writeStub.calledOnceWith("testdata4"), "called communicator write").to.be.true;
+        expect(writeStub.calledOnceWith(data), "called communicator write").to.be.true;
     });
 
     it("requestValue throw no communicator", function() {
@@ -193,18 +205,21 @@ describe("TestModuleSQLevelToMix", function() {
     it("incValueMix", function() {
         let writeStub = communicatorMock.mock("write", "");
         writeStub.callsFake(function(data: string) {});
-        let sendStub = commandBuilderMock.mock("toSendInc", "testdata1");
-        sendStub.callsFake(function(msb: number, lsb: number) : string {
+
+        let data = new Uint8Array([1,2,3,4]);
+
+        let sendStub = commandBuilderMock.mock("toSendInc", data);
+        sendStub.callsFake(function(msb: number, lsb: number) : Uint8Array {
             expect(msb, "msb").to.be.eq(0x42);
             expect(lsb, "lsb").to.be.eq(0x3e);
-            return "testdata1";
+            return data;
         });
 
         levelToMix.setCommunicator(communicator);
         levelToMix.incValueMix(Mixes.Aux11, 21);
 
         expect(sendStub.calledOnce, "called commandBuilder").to.be.true;
-        expect(writeStub.calledOnceWith("testdata1"), "called communicator write").to.be.true;
+        expect(writeStub.calledOnceWith(data), "called communicator write").to.be.true;
     });
 
     it("decValue", function() {
@@ -219,34 +234,39 @@ describe("TestModuleSQLevelToMix", function() {
     it("decValueMix", function() {
         let writeStub = communicatorMock.mock("write", "");
         writeStub.callsFake(function(data: string) {});
-        let sendStub = commandBuilderMock.mock("toSendDec", "testdata2");
-        sendStub.callsFake(function(msb: number, lsb: number) : string {
+
+        let data = new Uint8Array([6,44,42,87]);
+
+        let sendStub = commandBuilderMock.mock("toSendDec", data);
+        sendStub.callsFake(function(msb: number, lsb: number) : Uint8Array {
             expect(msb, "msb").to.be.eq(0x40);
             expect(lsb, "lsb").to.be.eq(0x02);
-            return "testdata2";
+            return data;
         });
 
         levelToMix.setCommunicator(communicator);
         levelToMix.decValueMix(Mixes.LR, 3);
 
         expect(sendStub.calledOnce, "called commandBuilder").to.be.true;
-        expect(writeStub.calledOnceWith("testdata2"), "called communicator write").to.be.true;
+        expect(writeStub.calledOnceWith(data), "called communicator write").to.be.true;
     });
 
     it("callbackReceive", function() {
         commandBuilderMock.mock("isPackageForMe",true);
 
+        let data = new Uint8Array([1,2,3,4]);
+
         let calls = 0;
-        levelToMix.addCallbackReiceve((data: string) => {
-            expect(data, "receiver1").to.be.eq("testdataReceive");
+        levelToMix.addCallbackReiceve((data: Uint8Array) => {
+            expect(data, "receiver1").to.be.eq(data);
             calls++;
         });
-        levelToMix.addCallbackReiceve((data: string) => {
-            expect(data, "receiver2").to.be.eq("testdataReceive");
+        levelToMix.addCallbackReiceve((data: Uint8Array) => {
+            expect(data, "receiver2").to.be.eq(data);
             calls++;
         });
 
-        levelToMix.callbackReceive("testdataReceive");
+        levelToMix.callbackReceive(data);
         expect(calls).to.be.eq(2);
     });
 });

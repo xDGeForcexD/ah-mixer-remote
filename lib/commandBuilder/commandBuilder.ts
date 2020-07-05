@@ -7,7 +7,7 @@ abstract class CommandBuilder {
         }
     }
 
-    abstract isPackageForMe(data: string) : Boolean
+    abstract isPackageForMe(data: Uint8Array) : Boolean
 }
 
 export default CommandBuilder;

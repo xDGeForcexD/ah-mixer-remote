@@ -24,7 +24,7 @@ abstract class Module {
         this.communicator = communicator;
     }
     
-    callbackReceive(data: string) : void {
+    callbackReceive(data: Uint8Array) : void {
         if(this.commandBuilder.isPackageForMe(data)) {
             this.receiver.forEach((callback) => {
                 callback(data);

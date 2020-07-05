@@ -37,39 +37,45 @@ describe("TestModuleSQMute", function() {
     it("setValue on", function() {
         let writeStub = communicatorMock.mock("write", "");
         writeStub.callsFake(function(data: string) {});
-        let sendStub = commandBuilderMock.mock("toSendValue", "testdata1");
-        sendStub.callsFake(function(msb: number, lsb: number, vc: number, vf: number) : string {
+
+        let data = new Uint8Array([1,2,3,4]);
+
+        let sendStub = commandBuilderMock.mock("toSendValue", data);
+        sendStub.callsFake(function(msb: number, lsb: number, vc: number, vf: number) : Uint8Array {
             expect(msb, "msb").to.be.eq(0x00);
             expect(lsb, "lsb").to.be.eq(0x05);
             expect(vc, "vc").to.be.eq(0x00);
             expect(vf, "vf").to.be.eq(0x01);
-            return "testdata1";
+            return data;
         });
 
         mute.setCommunicator(communicator);
         mute.setValue(6, new ValueState(true));
 
         expect(sendStub.calledOnce, "called commandBuilder").to.be.true;
-        expect(writeStub.calledOnceWith("testdata1"), "called communicator write").to.be.true;
+        expect(writeStub.calledOnceWith(data), "called communicator write").to.be.true;
     });
 
     it("setValue off", function() {
         let writeStub = communicatorMock.mock("write", "");
         writeStub.callsFake(function(data: string) {});
-        let sendStub = commandBuilderMock.mock("toSendValue", "testdata2");
-        sendStub.callsFake(function(msb: number, lsb: number, vc: number, vf: number) : string {
+
+        let data = new Uint8Array([8,9,5,7]);
+
+        let sendStub = commandBuilderMock.mock("toSendValue", data);
+        sendStub.callsFake(function(msb: number, lsb: number, vc: number, vf: number) : Uint8Array {
             expect(msb, "msb").to.be.eq(0x00);
             expect(lsb, "lsb").to.be.eq(0x14);
             expect(vc, "vc").to.be.eq(0x00);
             expect(vf, "vf").to.be.eq(0x00);
-            return "testdata2";
+            return data;
         });
 
         mute.setCommunicator(communicator);
         mute.setValue(21, new ValueState(false));
 
         expect(sendStub.calledOnce, "called commandBuilder").to.be.true;
-        expect(writeStub.calledOnceWith("testdata2"), "called communicator write").to.be.true;
+        expect(writeStub.calledOnceWith(data), "called communicator write").to.be.true;
     });
 
     it("setValue throw no communicator", function() {
@@ -96,18 +102,21 @@ describe("TestModuleSQMute", function() {
     it("requestValue", function() {
         let writeStub = communicatorMock.mock("write", "");
         writeStub.callsFake(function(data: string) {});
-        let sendStub = commandBuilderMock.mock("toGetValue", "testdata4");
-        sendStub.callsFake(function(msb: number, lsb: number) : string {
+
+        let data = new Uint8Array([1,2,3,4]);
+
+        let sendStub = commandBuilderMock.mock("toGetValue", data);
+        sendStub.callsFake(function(msb: number, lsb: number) : Uint8Array {
             expect(msb, "msb").to.be.eq(0x00);
             expect(lsb, "lsb").to.be.eq(0x0a);
-            return "testdata4";
+            return data;
         });
 
         mute.setCommunicator(communicator);
         mute.requestValue(11);
 
         expect(sendStub.calledOnce, "called commandBuilder").to.be.true;
-        expect(writeStub.calledOnceWith("testdata4"), "called communicator write").to.be.true;
+        expect(writeStub.calledOnceWith(data), "called communicator write").to.be.true;
     });
 
     it("requestValue throw no communicator", function() {
@@ -134,34 +143,39 @@ describe("TestModuleSQMute", function() {
     it("toggleValue", function() {
         let writeStub = communicatorMock.mock("write", "");
         writeStub.callsFake(function(data: string) {});
-        let sendStub = commandBuilderMock.mock("toSendInc", "testdata3");
-        sendStub.callsFake(function(msb: number, lsb: number) : string {
+
+        let data = new Uint8Array([1,2,3,4]);
+
+        let sendStub = commandBuilderMock.mock("toSendInc", data);
+        sendStub.callsFake(function(msb: number, lsb: number) : Uint8Array {
             expect(msb, "msb").to.be.eq(0x00);
             expect(lsb, "lsb").to.be.eq(0x21);
-            return "testdata3";
+            return data;
         });
 
         mute.setCommunicator(communicator);
         mute.toggleValue(34);
 
         expect(sendStub.calledOnce, "called commandBuilder").to.be.true;
-        expect(writeStub.calledOnceWith("testdata3"), "called communicator write").to.be.true;
+        expect(writeStub.calledOnceWith(data), "called communicator write").to.be.true;
     });
 
     it("callbackReceive", function() {
         commandBuilderMock.mock("isPackageForMe",true);
 
+        let data = new Uint8Array([1,2,3,4]);
+
         let calls = 0;
-        mute.addCallbackReiceve((data: string) => {
-            expect(data, "receiver1").to.be.eq("testdataReceive2");
+        mute.addCallbackReiceve((data: Uint8Array) => {
+            expect(data, "receiver1").to.be.eq(data);
             calls++;
         });
-        mute.addCallbackReiceve((data: string) => {
-            expect(data, "receiver2").to.be.eq("testdataReceive2");
+        mute.addCallbackReiceve((data: Uint8Array) => {
+            expect(data, "receiver2").to.be.eq(data);
             calls++;
         });
 
-        mute.callbackReceive("testdataReceive2");
+        mute.callbackReceive(data);
         expect(calls).to.be.eq(2);
     });
 });

@@ -1,5 +1,5 @@
 interface ICallbackReceive {
-    (data: string) : void;
+    (data: Uint8Array) : void;
 }
 
 export default ICallbackReceive;
