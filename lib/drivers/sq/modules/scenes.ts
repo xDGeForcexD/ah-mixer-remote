@@ -3,7 +3,7 @@ import IValue from "../../../types/structure/iValue";
 import ValueState from "../../../types/structure/valueState";
 
 class ModuleSQScenes extends ModuleScenes {
-    driverRequiere: string = "SQ";
+    driverRequiere: string = "sq";
     
     /**
      * Takes scene number and value to change the scene on the mixer

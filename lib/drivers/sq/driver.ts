@@ -10,7 +10,7 @@ import Scenes from "./modules/scenes";
 import Softkey from "./modules/softkey";
 
 class DriverSQ extends Driver {
-    key = "SQ";
+    key = "sq";
     name = "SQ Mixer";
 
     port = 1234;
@@ -38,7 +38,7 @@ class DriverSQ extends Driver {
             if(module.driverRequiere === this.key) {
                 this.modules.set(module.key, module);
             }
-        })
+        });
     }
 
 }

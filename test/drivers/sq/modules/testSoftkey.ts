@@ -33,6 +33,7 @@ describe("TestModuleSQSoftkey", function() {
     afterEach(function() {
         communicatorMock.restore();
         commandBuilderMock.restore();
+        driverMock.restore();
     });
 
     it("setValue with true", function() {

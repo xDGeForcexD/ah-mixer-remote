@@ -32,6 +32,7 @@ describe("TestModuleSQMute", function() {
     afterEach(function() {
         communicatorMock.restore();
         commandBuilderMock.restore();
+        driverMock.restore();
     });
 
     it("setValue on", function() {
