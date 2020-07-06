@@ -1,6 +1,6 @@
 import ModuleLevelToMix from "../../../module/types/levelToMix";
-import ValueLevel from "../../../types/structure/ValueLevel";
-import Mixes from "../../../types/enums/Mixes";
+import ValueLevel from "../../../types/structure/valueLevel";
+import Mixes from "../../../types/enums/mixes";
 import CommandBuilderSQ from "../commandBuilder";
 
 class ModuleSQLevelToMix extends ModuleLevelToMix {

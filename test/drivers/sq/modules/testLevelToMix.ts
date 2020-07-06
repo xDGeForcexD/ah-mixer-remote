@@ -4,8 +4,8 @@ import * as Communicator from "../../../../lib/communicator/communicator";
 import * as CommandBuilderSQ from "../../../../lib/drivers/sq/commandBuilder";
 import * as DriverSQ from "../../../../lib/drivers/sq/driver";
 import ModuleSQLevelToMix from "../../../../lib/drivers/sq/modules/levelToMix";
-import Mixes from "../../../../lib/types/enums/Mixes";
-import ValueLevel from "../../../../lib/types/structure/ValueLevel";
+import Mixes from "../../../../lib/types/enums/mixes";
+import ValueLevel from "../../../../lib/types/structure/valueLevel";
 import Driver from "../../../../lib/driver/driver";
 
 const sinon = require("sinon");
