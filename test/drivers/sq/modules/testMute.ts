@@ -6,6 +6,7 @@ import * as DriverSQ from "../../../../lib/drivers/sq/driver";
 import Driver from "../../../../lib/driver/driver";
 import ModuleSQMute from "../../../../lib/drivers/sq/modules/mute";
 import ValueState from "../../../../lib/types/structure/valueState";
+import IValue from "../../../../lib/types/structure/iValue";
 
 const sinon = require("sinon");
 
@@ -163,16 +164,18 @@ describe("TestModuleSQMute", function() {
 
     it("callbackReceive", function() {
         commandBuilderMock.mock("isPackageForMe",true);
+        commandBuilderMock.mock("parseReceiver", {msb: 0x00, lsb: 0x0c});
+        commandBuilderMock.mock("parseValue", {vc: 0x3a, vf: 0x37});
 
         let data = new Uint8Array([1,2,3,4]);
 
         let calls = 0;
-        mute.addCallbackReiceve((data: Uint8Array) => {
-            expect(data, "receiver1").to.be.eq(data);
+        mute.addCallbackReiceve((channel: number, value: IValue) => {
+            expect(channel, "receiver1").to.be.eq(13);
             calls++;
         });
-        mute.addCallbackReiceve((data: Uint8Array) => {
-            expect(data, "receiver2").to.be.eq(data);
+        mute.addCallbackReiceve((channel: number, value: IValue) => {
+            expect(channel, "receiver1").to.be.eq(13);
             calls++;
         });
 

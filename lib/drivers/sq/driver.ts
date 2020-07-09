@@ -13,7 +13,7 @@ class DriverSQ extends Driver {
     key = "sq";
     name = "SQ Mixer";
 
-    port = 1234;
+    port = 51325;
 
     commandBuilder : CommandBuilderSQ;
 

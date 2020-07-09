@@ -42,6 +42,14 @@ class ModuleSQSoftkey extends ModuleSoftkey {
         throw new Error("option not available");
     }
 
+    /**
+     * Callback if data receive and execute callbacks
+     * @param data Data Array
+     * @ignore callback for softkeys not available
+     */
+    callbackReceive(data: Uint8Array) : void {
+    }
+
 }
 
 export default ModuleSQSoftkey;

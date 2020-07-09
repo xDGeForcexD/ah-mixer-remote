@@ -1,14 +1,19 @@
 import ModuleMute from "../../../module/types/mute";
 import CommandBuilderSQ from "../commandBuilder";
 import ValueState from "../../../types/structure/valueState";
+import IAddressRange from "../../../types/structure/iAddressRange";
 
 class ModuleSQMute extends ModuleMute {
     driverRequiere: string = "sq";
 
+    addressRange : IAddressRange;
+
     commandBuilder : CommandBuilderSQ;
+    
     constructor(commandBuilder: CommandBuilderSQ) {
         super(commandBuilder);
         this.commandBuilder = commandBuilder;
+        this.addressRange = {msb: {from: 0x00, to: 0x00}, lsb: {from: 0x00, to: 0x2f}};
     }
 
     /**
@@ -62,6 +67,24 @@ class ModuleSQMute extends ModuleMute {
         let address = this.calcAddress(channel);
         this.communicator.write(this.commandBuilder.toGetValue(address.msb, address.lsb));
     }
+    
+    // TODO WRITE TEST
+    /**
+     * Callback if data receive and execute callbacks
+     * @param data Data Array
+     */
+    callbackReceive(data: Uint8Array) : void {
+        if(this.commandBuilder.isPackageForMe(this.addressRange, data)) {
+            let receiver = this.commandBuilder.parseReceiver(data);
+            let value = this.commandBuilder.parseValue(data);
+            let receiverParsed = this.calcChannel(receiver.msb, receiver.lsb);
+            let valueParsed = new ValueState(value.vf > 0 ? true : false);
+            this.receiver.forEach((callback) => {
+                callback(receiverParsed, valueParsed);
+            });
+            
+        }
+    }
 
     /**
      * Calculates the Address from given mix and channel
@@ -71,6 +94,16 @@ class ModuleSQMute extends ModuleMute {
      */
     private calcAddress(channel: number) : {msb: number, lsb: number} {
         return {msb: 0x00, lsb: channel-1};
+    }
+
+    /** Calculates the channel of given Adddress
+     * 
+     * @param msb MSB Value
+     * @param lsb LSB Value
+     * @returns mix and channel number 
+     */
+    private calcChannel(msb: number, lsb: number) : number {
+        return lsb+1;
     }
 
     /**

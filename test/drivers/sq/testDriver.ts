@@ -21,7 +21,7 @@ describe("TestDriverSQ", function() {
         let driver = new DriverSQ("111.222.333.444");
         let fileCnt = fs.readdirSync("./lib/drivers/sq/modules/");
         expect(driver.ip).to.be.eq("111.222.333.444");
-        expect(driver.port).to.be.eq(1234);
+        expect(driver.port).to.be.eq(51325);
         expect(driver.modules.size).to.be.eq(fileCnt.length);
     });
 

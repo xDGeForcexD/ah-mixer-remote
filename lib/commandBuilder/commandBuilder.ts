@@ -1,3 +1,5 @@
+import IAddressRange from "../types/structure/iAddressRange";
+
 abstract class CommandBuilder {
     midiChannel : number = 0;
 
@@ -7,7 +9,7 @@ abstract class CommandBuilder {
         }
     }
 
-    abstract isPackageForMe(data: Uint8Array) : Boolean
+    abstract isPackageForMe(addressRange: IAddressRange, data: Uint8Array) : Boolean
 }
 
 export default CommandBuilder;

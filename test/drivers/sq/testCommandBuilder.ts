@@ -67,33 +67,21 @@ describe("TestCommandBuilderSQ", function() {
         expect(data[7]).to.be.eq(96);
         expect(data[8]).to.be.eq(127);
     });
-    
-    it("isPackageForMe (string input / no range set)", function() {
-        expect(commandBuilder.isPackageForMe(new Uint8Array([177,99,3,177,98,8,177,6,3,177,38,4]))).to.be.false;
-    });
 
     it("isPackageForMe (string input / range set)", function() {
-        commandBuilder.setReceiverRange({from: 10, to: 20}, {from: 5, to: 5});
-        expect(commandBuilder.isPackageForMe(new Uint8Array([177,99,11,177,98,5,177,6,3,177,38,4]))).to.be.true;
-    });
-
-    it("isPackageForMe (msb & lsb input / no range set)", function() {
-        expect(commandBuilder.isPackageForMe({msb: 54, lsb: 41})).to.be.false;
+        expect(commandBuilder.isPackageForMe({msb: {from: 10, to: 20}, lsb: {from: 5, to: 5}}, new Uint8Array([177,99,11,177,98,5,177,6,3,177,38,4]))).to.be.true;
     });
 
     it("isPackageForMe (msb & lsb input / range set)", function() {
-        commandBuilder.setReceiverRange({from: 10, to: 20}, {from: 5, to: 5});
-        expect(commandBuilder.isPackageForMe({msb: 13, lsb: 5})).to.be.true;
+        expect(commandBuilder.isPackageForMe({msb: {from: 10, to: 20}, lsb: {from: 5, to: 5}}, {msb: 13, lsb: 5})).to.be.true;
     });
 
     it("isPackageForMe (wrong msb & lsb input)", function() {
-        commandBuilder.setReceiverRange({from: 10, to: 20}, {from: 5, to: 5});
-        expect(commandBuilder.isPackageForMe({msb: 9, lsb: 5})).to.be.false;
+        expect(commandBuilder.isPackageForMe({msb: {from: 10, to: 20}, lsb: {from: 5, to: 5}}, {msb: 9, lsb: 5})).to.be.false;
     });
 
     it("isPackageForMe (msb & wrong lsb input)", function() {
-        commandBuilder.setReceiverRange({from: 10, to: 20}, {from: 5, to: 5});
-        expect(commandBuilder.isPackageForMe({msb: 14, lsb: 6})).to.be.false;
+        expect(commandBuilder.isPackageForMe({msb: {from: 10, to: 20}, lsb: {from: 5, to: 5}}, {msb: 14, lsb: 6})).to.be.false;
     });
 
     it("parseReceiver", function() {

@@ -4,6 +4,7 @@
   "description": "Allen & Heath Digital Mixer Remote Lib",
   "scripts": {
     "test": "mocha -r ts-node/register 'test/**/*.ts'",
+    "test-integrated": "mocha -r ts-node/register testIntegrated/**/*.ts",
     "coverage": "nyc npm run test",
     "build": "rimraf build && tsc",
     "start": "nodemon --exec ts-node index.ts"
@@ -40,7 +41,8 @@
   },
   "nyc": {
     "include": [
-      "lib/**/*.ts"
+      "lib/**/*.ts",
+      "index.ts"
     ],
     "exclude": [
       "test/**/*.ts"

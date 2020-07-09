@@ -1,7 +1,9 @@
 import Driver from "./lib/driver/driver";
 import DriverList from "./lib/driver/driverList";
 import Communicator from "./lib/communicator/communicator";
-import ICallbackReceive from "./lib/types/functions/iCallbackReceive";
+import Module from "./lib/module/module";
+import ICallbackValue from "./lib/types/functions/iCallbackValue";
+import Mixes from "./lib/types/enums/mixes";
 
 class AHMixerRemote {
     driver : Driver;
@@ -14,18 +16,15 @@ class AHMixerRemote {
         if(driverClass === null) {
             throw new Error("Driver not found");
         }
-        if(port === undefined) {
-            this.driver = new driverClass(ip, null);
-        } else {
-            this.driver = new driverClass(ip, port);
-        }
+        this.driver = new driverClass(ip, port);
 
         // create new communictator instance
         this.communictator = new Communicator(this.driver);
 
         // add receiver callback from modules
         this.driver.modules.forEach(module => {
-            this.communictator.addReceiver(module.callbackReceive);
+            module.setCommunicator(this.communictator);
+            this.communictator.addReceiver(module.callbackReceive.bind(module));
         });
     }
 
@@ -41,7 +40,11 @@ class AHMixerRemote {
         return this.communictator.isConnected();
     }
 
-    setCallbackReceive(module: string, callback: ICallbackReceive) : void {
+    getModules() : Map<string, Module> {
+        return this.driver.modules;
+    }
+
+    setCallbackReceive(module: string, callback: ICallbackValue) : void {
         if(this.driver.modules.has(module)) {
             this.driver.modules.get(module)!.addCallbackReiceve(callback);
         }

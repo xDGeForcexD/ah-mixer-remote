@@ -41,6 +41,14 @@ class ModuleSQScenes extends ModuleScenes {
         throw new Error("option not available");
     }
 
+    /**
+     * Callback if data receive and execute callbacks
+     * @param data Data Array
+     * @ignore callback for scenes not available
+     */
+    callbackReceive(data: Uint8Array) : void {
+    }
+
 }
 
 export default ModuleSQScenes;

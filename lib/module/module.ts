@@ -2,6 +2,7 @@ import Communicator from "../communicator/communicator";
 import ICallbackReceive from "../types/functions/iCallbackReceive";
 import IValue from "../types/structure/iValue";
 import CommandBuilder from "../commandBuilder/commandBuilder";
+import ICallbackValue from "../types/functions/iCallbackValue";
 
 abstract class Module {
     abstract driverRequiere: string;
@@ -11,7 +12,7 @@ abstract class Module {
 
     communicator : Communicator | null = null;
 
-    receiver : ICallbackReceive[] = [];
+    receiver : ICallbackValue[] = [];
 
     constructor(commandBuilder: CommandBuilder) {
         this.commandBuilder = commandBuilder;
@@ -24,15 +25,14 @@ abstract class Module {
         this.communicator = communicator;
     }
     
-    callbackReceive(data: Uint8Array) : void {
-        if(this.commandBuilder.isPackageForMe(data)) {
-            this.receiver.forEach((callback) => {
-                callback(data);
-            });
-        }
-    }
+    abstract callbackReceive(data: Uint8Array) : void
 
-    addCallbackReiceve(callback: ICallbackReceive) : void {
+    /**
+     * Add Callback if data is received
+     * if there is more then one mix, this will execute on the main!
+     * @param callback Callback Function
+     */
+    addCallbackReiceve(callback: ICallbackValue) : void {
         this.receiver.push(callback);
     }
 

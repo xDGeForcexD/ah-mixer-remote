@@ -2,14 +2,20 @@ import ModuleLevelToMix from "../../../module/types/levelToMix";
 import ValueLevel from "../../../types/structure/valueLevel";
 import Mixes from "../../../types/enums/mixes";
 import CommandBuilderSQ from "../commandBuilder";
+import ICallbackMixValue from "../../../types/functions/iCallbackMixValue";
+import IAddressRange from "../../../types/structure/iAddressRange";
 
 class ModuleSQLevelToMix extends ModuleLevelToMix {
     driverRequiere: string = "sq";
+
+    receiverMix : ICallbackMixValue[] = [];
+    addressRange : IAddressRange;
 
     commandBuilder : CommandBuilderSQ;
     constructor(commandBuilder: CommandBuilderSQ) {
         super(commandBuilder);
         this.commandBuilder = commandBuilder;
+        this.addressRange = {msb: {from: 0x40, to: 0x45}, lsb: {from: 0x00, to: 0x7f}};
     }
 
     /**
@@ -118,6 +124,37 @@ class ModuleSQLevelToMix extends ModuleLevelToMix {
         let address = this.calcAddress(mix, channel);
         this.communicator.write(this.commandBuilder.toGetValue(address.msb, address.lsb));
     }
+
+    // TODO WRITE TEST
+    /**
+     * Callback if data receive and execute callbacks
+     * @param data Data Array
+     */
+    callbackReceive(data: Uint8Array) : void {
+        if(this.commandBuilder.isPackageForMe(this.addressRange, data)) {
+            let receiver = this.commandBuilder.parseReceiver(data);
+            let value = this.commandBuilder.parseValue(data);
+            let receiverParsed = this.calcMixChannel(receiver.msb, receiver.lsb);
+            let valueParsed = new ValueLevel(this.decode(value.vc, value.vf));
+            if(receiverParsed.mix === Mixes.LR) {
+                this.receiver.forEach((callback) => {
+                    callback(receiverParsed.channel, valueParsed);
+                });
+            } else {
+                this.receiverMix.forEach((callback) => {
+                    callback(receiverParsed.mix, receiverParsed.channel, valueParsed);
+                });
+            }
+        }
+    }
+
+    /**
+     * Add Callback if not main mix execute if data is received
+     * @param callback Callback Function
+     */
+    addCallbackReiceveMix(callback: ICallbackMixValue) : void {
+        this.receiverMix.push(callback);
+    }
     
     /**
      * Calculates the Address from given mix and channel
@@ -139,6 +176,29 @@ class ModuleSQLevelToMix extends ModuleLevelToMix {
         }
 
         return {msb: msb, lsb: lsb};
+    }
+
+    /** Calculates the channel of given Adddress
+     * 
+     * @param msb MSB Value
+     * @param lsb LSB Value
+     * @returns mix and channel number 
+     */
+    private calcMixChannel(msb: number, lsb: number) : {mix: Mixes, channel: number} {
+        let mix : Mixes;
+        let channel : number;
+
+        msb = msb - 0x40; 
+        if(msb === 0 && lsb >= 0x00 && lsb <=0x2f) {
+            mix = Mixes.LR;
+            channel = lsb+1;
+        } else {
+            lsb = lsb - 0x44 + msb * 0x80;
+            channel = Math.floor(lsb / 12) + 1;
+            mix = lsb % 12 + 1;
+        }
+
+        return {mix: mix, channel: channel};
     }
 
     /**

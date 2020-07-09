@@ -33,7 +33,7 @@ describe("TestCommunicator", function() {
     it("connect", function() {
         let called = false;
 
-        sinon.stub(net.Socket.prototype, 'connect').callsFake(function(options: any) {
+        let connectStub = sinon.stub(net.Socket.prototype, 'connect').callsFake(function(options: any) {
             expect(options.host).to.be.eq("111.222.333.444");
             expect(options.port).to.be.eq(1234);
             called = true;
@@ -42,7 +42,8 @@ describe("TestCommunicator", function() {
         communicator.connect();
         expect(communicator.enable).to.be.true;
         expect(called).to.be.true;      
-                
+        
+        connectStub.restore();
     });
 
     it("connection ok", function() {
@@ -69,6 +70,8 @@ describe("TestCommunicator", function() {
         communicator.disconnect();
         expect(communicator.enable, "enable").to.be.false;
         expect(endCall.calledOnce, "end command send").to.be.true;
+
+        endCall.restore();
     });
 
     it("connection reconnect", function() {
@@ -79,6 +82,7 @@ describe("TestCommunicator", function() {
         fakeTimer.tick(1000);
         expect(connectCall.calledOnce, "reconnect after wait time").to.be.true;
 
+        connectCall.restore();
     });
 
     it("send message one", function() {
@@ -87,6 +91,8 @@ describe("TestCommunicator", function() {
         let data = new Uint8Array([1, 2, 3, 4]);
         communicator.write(data);
         expect(writeCall.calledOnceWith(data)).to.be.true;
+
+        writeCall.restore();
     });
 
     it("send message two", function() {
@@ -100,6 +106,8 @@ describe("TestCommunicator", function() {
         fakeTimer.tick(100);
         expect(writeCall.calledWith(data2), "send message two").to.be.true;
         expect(writeCall.calledTwice, "only two message was send").to.be.true;
+        
+        writeCall.restore();
     });
 
     it("receive message", function() {
