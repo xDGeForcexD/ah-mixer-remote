@@ -1,9 +1,9 @@
 import Driver from "./lib/driver/driver";
+import * as Drivers from "./lib/drivers/drivers";
 import DriverList from "./lib/driver/driverList";
 import Communicator from "./lib/communicator/communicator";
 import Module from "./lib/module/module";
 import ICallbackValue from "./lib/types/functions/iCallbackValue";
-import Mixes from "./lib/types/enums/mixes";
 
 class AHMixerRemote {
     driver : Driver;
@@ -51,4 +51,6 @@ class AHMixerRemote {
     }
 }
 
+
 export default AHMixerRemote;
+export {Drivers};

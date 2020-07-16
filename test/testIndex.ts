@@ -5,11 +5,11 @@ import * as fs from "fs";
 import AHMixerRemote from "../index";
 import * as net from "net";
 import IValue from "../lib/types/structure/iValue";
-import ModuleLevelToMix from "../lib/module/types/levelToMix";
 import ModuleSQLevelToMix from "../lib/drivers/sq/modules/levelToMix";
 import Mixes from "../lib/types/enums/mixes";
 import ValueLevel from "../lib/types/structure/valueLevel";
 import Communicator from "../lib/communicator/communicator";
+import { Module } from "module";
 
 const sinon = require("sinon");
 
@@ -63,6 +63,17 @@ describe("TestAHMixerRemote", function() {
         let fileCnt = fs.readdirSync("./lib/drivers/sq/modules/");
         expect(modules.size).to.greaterThan(0);
         expect(modules.size).to.be.eq(fileCnt.length);
+    });
+
+    it("driver not found", function() {
+        let called = 0;
+        try {
+            let mixer2 = new AHMixerRemote("hallo", "111.222.333.444");
+        } catch(e) {
+            called++;
+            expect(e.message).to.be.eq("Driver not found");
+        }
+        expect(called, "called").to.be.eq(1);
     });
 
     it("integrated test: get level from mix", function() {

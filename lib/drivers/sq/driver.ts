@@ -44,3 +44,10 @@ class DriverSQ extends Driver {
 }
 
 export default DriverSQ;
+// ADD HERE ALL AVAILABLE MODULES!
+export {
+    LevelToMix,
+    Mute,
+    Scenes,
+    Softkey
+};
