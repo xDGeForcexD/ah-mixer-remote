@@ -1,4 +1,4 @@
-# Allen & Heath Mixer Remote Library
+Allen & Heath Mixer Remote Library
 ======
 
 [![Build Status](https://travis-ci.com/xDGeForcexD/ah-mixer-remote.svg?branch=master)](https://travis-ci.com/xDGeForcexD/ah-mixer-remote)
