@@ -1,6 +1,6 @@
 {
   "name": "ah-mixer-remote",
-  "version": "0.1.0",
+  "version": "0.1.1-0",
   "description": "Allen & Heath Digital Mixer Remote Lib",
   "scripts": {
     "test": "mocha -r ts-node/register 'test/**/*.ts'",
