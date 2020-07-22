@@ -63,6 +63,38 @@ describe("TestCommunicator", function() {
         expect(communicator.isConnected()).to.be.false;
     });
 
+    it("connection getError", function() {
+        communicator.connectedServer = true;
+        communicator.client.emit("error", new Error("message"));
+        expect(communicator.getError()).to.be.eq("message");
+    });
+
+    it("connection error no reset", function() {
+        communicator.connectedServer = true;
+        communicator.client.emit("error", new Error("message"));
+        communicator.client.emit("connect");
+        expect(communicator.getError()).to.be.eq("message");
+    });
+
+    it("connection error reset", function() {
+        communicator.connectedServer = true;
+        communicator.client.emit("error", new Error("message"));
+        communicator.getError();
+        communicator.client.emit("connect");
+        expect(communicator.getError()).to.be.null;
+    });
+
+    it("connection status handler", function() {
+        let called = 0;
+        communicator.setCallbackConnection((status) => {
+            expect(status).to.be.true;
+            called++;
+        });
+
+        communicator.client.emit("connect");
+        expect(called, "called cnt").to.be.eq(1);
+    });
+
     it("disconnect", function() {
         let endCall = sandbox.spy(net.Socket.prototype, "end");
         communicator.connectedServer = true;

@@ -219,7 +219,10 @@ class ModuleSQLevelToMix extends ModuleLevelToMix {
      * @param vf Value Fine
      * @returns Value in db (Linear Taper)
      */
-    private decode(vc: number, vf: number) : number {
+    private decode(vc: number, vf: number) : number | "inf" {
+        if(vc === 0 && vf === 0) {
+            return "inf";
+        }
         let gainAs14Bit;
         gainAs14Bit = vc << 7;
         gainAs14Bit |= vf & 0x7f;
@@ -234,6 +237,9 @@ class ModuleSQLevelToMix extends ModuleLevelToMix {
      * @returns object with vc and vf
      */
     private encode(gain: ValueLevel) : {vc: number, vf: number} {
+        if(gain.value === "inf") {
+            return {vc: 0, vf: 0};
+        }
         let gainOffB = (gain.value * 256) + 0x8000;
         let scaledGain = (gainOffB / (35328)) * 0xFFFF;
         let gain14Bit = Math.floor(Math.floor(scaledGain) / 4);

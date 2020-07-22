@@ -1,9 +1,11 @@
 import Driver from "./lib/driver/driver";
 import * as Drivers from "./lib/drivers/drivers";
+import * as Types from "./lib/types/types";
 import DriverList from "./lib/driver/driverList";
 import Communicator from "./lib/communicator/communicator";
 import Module from "./lib/module/module";
 import ICallbackValue from "./lib/types/functions/iCallbackValue";
+import ICallbackConnection from "./lib/types/functions/iCallbackConnection";
 
 class AHMixerRemote {
     driver : Driver;
@@ -40,8 +42,20 @@ class AHMixerRemote {
         return this.communictator.isConnected();
     }
 
+    getError() : string | null {
+        return this.communictator.getError();
+    }
+
     getModules() : Map<string, Module> {
         return this.driver.modules;
+    }
+
+    getModule(key: string) {
+        return this.driver.modules.get(key);
+    }
+
+    setCallbackConnection(callback: ICallbackConnection) {
+        this.communictator.setCallbackConnection(callback);
     }
 
     setCallbackReceive(module: string, callback: ICallbackValue) : void {
@@ -53,4 +67,4 @@ class AHMixerRemote {
 
 
 export default AHMixerRemote;
-export {Drivers};
+export {Drivers, Types, Module};

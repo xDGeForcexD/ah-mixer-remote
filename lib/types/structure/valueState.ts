@@ -8,6 +8,10 @@ class ValueState implements IValue {
         this.value = value;
         this.unit = "";
     }
+    
+    toString() : string {
+        return this.value ? "1" : "0";
+    }
 }
 
 export default ValueState;

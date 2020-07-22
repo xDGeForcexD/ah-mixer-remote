@@ -10,6 +10,7 @@ import Mixes from "../lib/types/enums/mixes";
 import ValueLevel from "../lib/types/structure/valueLevel";
 import Communicator from "../lib/communicator/communicator";
 import { Module } from "module";
+import { LevelToMix } from "../lib/drivers/sq/driver";
 
 const sinon = require("sinon");
 
@@ -41,6 +42,7 @@ describe("TestAHMixerRemote", function() {
 
     it("disconnect", function() {
         let netEnd = sinon.stub(net.Socket.prototype, 'end').callsFake(function() {});
+        mixer.connect();
         mixer.disconnect();
         expect(netEnd.calledOnce).to.be.true;
 
@@ -58,11 +60,36 @@ describe("TestAHMixerRemote", function() {
         expect(mixer.isConnected()).to.be.false;
     });
 
+    it("set connectionHandler", function() {
+        let called = 0;
+        mixer.setCallbackConnection((status: boolean) => {
+            expect(status, "value").to.be.true;
+            called++;
+        });
+        mixer.communictator.client.emit("connect");
+        expect(called, "called").to.be.eq(1);
+    });
+
+    it("getError", function() {
+        mixer.communictator.client.emit("error", new Error("message"));
+        expect(mixer.getError()).to.be.eq("message");
+    });
+
     it("getModules", function() {
         let modules = mixer.getModules();
         let fileCnt = fs.readdirSync("./lib/drivers/sq/modules/");
         expect(modules.size).to.greaterThan(0);
         expect(modules.size).to.be.eq(fileCnt.length);
+    });
+
+    it("getModule levelToMix", function() {
+        let module = mixer.getModule("levelToMix");
+        expect(module).to.be.an.instanceof(LevelToMix);
+    });
+
+    it("getModule not found", function() {
+        let module = mixer.getModule("test");
+        expect(module).to.be.undefined;
     });
 
     it("driver not found", function() {

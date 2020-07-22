@@ -1,6 +1,7 @@
 import Driver from "../driver/driver";
 import {Socket} from "net";
 import ICallbackReceive from "../types/functions/iCallbackReceive";
+import ICallbackConnection from "../types/functions/iCallbackConnection";
 
 class Communicator {
     receiver : ICallbackReceive[] = [];
@@ -8,6 +9,8 @@ class Communicator {
 
     enable : Boolean = false;
     connectedServer : Boolean = false;
+    errorFlag : Boolean = false;
+    errorMessage : string | null = null;
 
     client : Socket;
     
@@ -15,6 +18,8 @@ class Communicator {
 
     queue : Uint8Array[] = [];
     intervalQueue : NodeJS.Timeout | null = null;
+
+    callbackConnection : ICallbackConnection | null = null;
 
     constructor(driver: Driver) {
         this.driver = driver;
@@ -30,16 +35,20 @@ class Communicator {
      * Enable Connection to the mixer
      */
     connect() : void {
-        this.enable = true;
-        this.startConnection();
+        if(!this.enable) {
+            this.enable = true;
+            this.startConnection();    
+        }
     }
 
     /**
      * Disable Connection to the mixer
      */
     disconnect() : void {
-        this.enable = false;
-        this.client.end();
+        if(this.enable) {
+            this.enable = false;
+            this.client.end();    
+        }
     }
 
     /**
@@ -48,6 +57,27 @@ class Communicator {
      */
     isConnected() : Boolean {
         return this.connectedServer;
+    }
+
+
+    /**
+     * Returns error message
+     * @returns string of message or null if no error
+     */
+    getError() : string  | null {
+        this.errorFlag = false;
+        return this.errorMessage;
+    }
+
+    /**
+     * Save Connection Status
+     * @param status status of the connection 
+     */
+    private connectionChange(status: boolean) {
+        this.connectedServer = status;
+        if(this.callbackConnection !== null) {
+            this.callbackConnection(status);
+        }
     }
 
     /**
@@ -61,19 +91,10 @@ class Communicator {
     }
 
     /**
-     * Clear Timeout Connect
-     */
-    private clearTimeoutConnect() {
-        if(this.timeoutConnect !== null) {
-            clearTimeout(this.timeoutConnect);
-            this.timeoutConnect = null;
-        }
-    }
-
-    /**
      * Start connection to the mixer
      */
     private startConnection() {
+        this.timeoutConnect = null;
         this.client.connect({
             port: this.driver.port,
             host: this.driver.ip
@@ -84,8 +105,10 @@ class Communicator {
      * Handler if connections is establish
      */
     private connected(error : any) {
-        this.connectedServer = true;
-        this.clearTimeoutConnect();
+        if(!this.errorFlag) {
+            this.errorMessage = null;
+        }
+        this.connectionChange(true);
     }
 
     /**
@@ -101,7 +124,13 @@ class Communicator {
      * @param error error message
      */
     private error(error : any) {
-        this.connectedServer = false;
+        this.errorFlag = true;
+        if(error instanceof Error) {
+            this.errorMessage = error.message;
+        } else {
+            this.errorMessage = error;
+        }
+        this.connectionChange(false);
         this.launchTimeoutConnect(1000);
     }
 
@@ -110,7 +139,7 @@ class Communicator {
      * @param error error message
      */
     private close(error : any) {
-        this.connectedServer = false;
+        this.connectionChange(false);
         this.launchTimeoutConnect();
     }
 
@@ -145,6 +174,14 @@ class Communicator {
      */
     addReceiver(callback: ICallbackReceive) : void {
         this.receiver.push(callback);
+    }
+
+    /**
+     * Execute callback if connection is changed
+     * @param callback callback function execute if connection changed 
+     */
+    setCallbackConnection(callback: ICallbackConnection) {
+        this.callbackConnection = callback;
     }
 
 }

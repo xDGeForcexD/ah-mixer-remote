@@ -263,10 +263,35 @@ describe("TestModuleSQLevelToMix", function() {
         let calls = 0;
         levelToMix.addCallbackReiceve((channel: number, value: IValue) => {
             expect(channel, "receiver1").to.be.eq(5);
+            expect(value.value).to.be.eq(-65);
             calls++;
         });
         levelToMix.addCallbackReiceve((channel: number, value: IValue) => {
             expect(channel, "receiver1").to.be.eq(5);
+            expect(value.value).to.be.eq(-65);
+            calls++;
+        });
+
+        levelToMix.callbackReceive(data);
+        expect(calls).to.be.eq(2);
+    });
+
+    it("callbackReceive inf", function() {
+        commandBuilderMock.mock("isPackageForMe",true);
+        commandBuilderMock.mock("parseReceiver", {msb: 0x40, lsb: 0x04});
+        commandBuilderMock.mock("parseValue", {vc: 0x00, vf: 0x00});
+
+        let data = new Uint8Array([1,2,3,4]);
+
+        let calls = 0;
+        levelToMix.addCallbackReiceve((channel: number, value: IValue) => {
+            expect(channel, "receiver1").to.be.eq(5);
+            expect(value.value).to.be.eq("inf");
+            calls++;
+        });
+        levelToMix.addCallbackReiceve((channel: number, value: IValue) => {
+            expect(channel, "receiver1").to.be.eq(5);
+            expect(value.value).to.be.eq("inf");
             calls++;
         });
 
