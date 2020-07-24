@@ -146,9 +146,31 @@ class Communicator {
     /**
      * Send message to mixer
      * @param data UInt8 with data to send
+     * @param duplicateCheck array of booleans if data byte is not equal with old data byte and duplicateCheck index is false then update data with new one
      */
-    write(data: Uint8Array) : void {
-        this.queue.push(data);
+    write(data: Uint8Array, duplicateCheck?: boolean[]) : void {
+        if(duplicateCheck === undefined) {
+            this.queue.push(data);
+        } else {
+            let addToQueue = true;
+            for(let i=0; i<this.queue.length; i++) {
+                let isDuplicate = true;
+                for(let k=0; k<this.queue[i].length && k<data.length && k<duplicateCheck.length; k++) {
+                    if(duplicateCheck[k] && this.queue[i][k] !== data[k]) {
+                        isDuplicate = false;
+                        break;
+                    }
+                }
+                if(isDuplicate) {
+                    addToQueue = false;
+                    this.queue[i] = data;
+                    break;
+                }
+            }
+            if(addToQueue) {
+                this.queue.push(data);
+            }
+        }
         
         if(this.intervalQueue === null) {
             let sendDataNow = this.queue.shift();

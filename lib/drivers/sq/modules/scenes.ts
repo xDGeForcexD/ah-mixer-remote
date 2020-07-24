@@ -29,7 +29,7 @@ class ModuleSQScenes extends ModuleScenes {
             throw new Error("wrong scene input");
         }
 
-        this.communicator.write(new Uint8Array([0xB0+this.commandBuilder.midiChannel, 0x00, Math.floor((scene-1) / 0x80), 0xC0, Math.floor((scene-1) % 0x80)]));
+        this.communicator.write(new Uint8Array([0xB0+this.commandBuilder.midiChannel, 0x00, Math.floor((scene-1) / 0x80), 0xC0, Math.floor((scene-1) % 0x80)]), [true, true, false, true, true, false]);
     }
     
     /**

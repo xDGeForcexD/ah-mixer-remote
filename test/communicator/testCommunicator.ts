@@ -137,8 +137,64 @@ describe("TestCommunicator", function() {
         expect(writeCall.calledOnceWith(data), "send message one").to.be.true;
         fakeTimer.tick(100);
         expect(writeCall.calledWith(data2), "send message two").to.be.true;
+        fakeTimer.tick(500);
         expect(writeCall.calledTwice, "only two message was send").to.be.true;
         
+        writeCall.restore();
+    });
+
+    it("send message third", function() {
+        let writeCall = sandbox.spy(net.Socket.prototype, "write");
+        communicator.connectedServer = true;
+        let data = new Uint8Array([1, 2, 3, 4]);
+        let data2 = new Uint8Array([5, 6, 7, 8]);
+        let data3 = new Uint8Array([5, 2, 7, 4]);
+        communicator.write(data);
+        communicator.write(data2);
+        expect(writeCall.calledOnceWith(data), "send message one").to.be.true;
+        fakeTimer.tick(100);
+        communicator.write(data3);
+        expect(writeCall.calledWith(data2), "send message two").to.be.true;
+        fakeTimer.tick(500);
+        expect(writeCall.calledWith(data3), "send message two").to.be.true;
+        expect(writeCall.calledThrice, "only two message was send").to.be.true;
+        
+        writeCall.restore();
+    });
+
+    it("send 4 message with same commands", function() {
+        let writeCall = sandbox.spy(net.Socket.prototype, "write");
+        communicator.connectedServer = true;
+        let data = new Uint8Array([1, 2, 3, 4]);
+        let data2 = new Uint8Array([1, 2, 5, 4]);
+        let data3 = new Uint8Array([1, 2, 7, 4]);
+        communicator.write(data, [true, true, false, true]);
+        communicator.write(data, [true, true, false, true]);
+        communicator.write(data2, [true, true, false, true]);
+        communicator.write(data3, [true, true, false, true]);
+        expect(writeCall.calledOnceWith(data)).to.be.true;
+        fakeTimer.tick(500);
+        expect(writeCall.calledWith(data3), "send message two").to.be.true;
+        expect(writeCall.calledTwice, "only two message was send").to.be.true;
+        writeCall.restore();
+    });
+
+    it("send 4 message with various commands", function() {
+        let writeCall = sandbox.spy(net.Socket.prototype, "write");
+        communicator.connectedServer = true;
+        let data = new Uint8Array([1, 2, 3, 4]);
+        let data2 = new Uint8Array([1, 2, 5, 4]);
+        let data3 = new Uint8Array([1, 1, 7, 4]);
+        communicator.write(data, [true, true, false, true]);
+        communicator.write(data, [true, true, false, true]);
+        communicator.write(data2, [true, true, false, true]);
+        communicator.write(data3, [true, true, false, true]);
+        expect(writeCall.calledOnceWith(data)).to.be.true;
+        fakeTimer.tick(100);
+        expect(writeCall.calledWith(data2), "send message two").to.be.true;
+        fakeTimer.tick(500);
+        expect(writeCall.calledWith(data3), "send message thre").to.be.true;
+        expect(writeCall.calledThrice, "only thre message was send").to.be.true;
         writeCall.restore();
     });
 

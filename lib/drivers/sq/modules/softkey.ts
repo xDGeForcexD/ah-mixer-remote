@@ -30,7 +30,7 @@ class ModuleSQSoftkey extends ModuleSoftkey {
         data[0] = data[0] + this.commandBuilder.midiChannel;
         data[1] = 0x30 + channel - 1;
 
-        this.communicator.write(data);
+        this.communicator.write(data, [false, true, false]);
     }
     
     /**

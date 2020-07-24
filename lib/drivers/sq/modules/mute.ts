@@ -31,7 +31,7 @@ class ModuleSQMute extends ModuleMute {
         }
 
         let address = this.calcAddress(channel);
-        this.communicator.write(this.commandBuilder.toSendValue(address.msb, address.lsb, 0, value.value ? 1 : 0));
+        this.communicator.write(this.commandBuilder.toSendValue(address.msb, address.lsb, 0, value.value ? 1 : 0), [true, true, true, true, true, true, true, true, true, true, true, false]);
     };
 
     /**
@@ -48,7 +48,7 @@ class ModuleSQMute extends ModuleMute {
         }
 
         let address = this.calcAddress(channel);
-        this.communicator.write(this.commandBuilder.toSendInc(address.msb, address.lsb));
+        this.communicator.write(this.commandBuilder.toSendInc(address.msb, address.lsb), [true, true, true, true, true, true, true, true, true]);
     }
 
     /**
@@ -65,10 +65,9 @@ class ModuleSQMute extends ModuleMute {
         }
 
         let address = this.calcAddress(channel);
-        this.communicator.write(this.commandBuilder.toGetValue(address.msb, address.lsb));
+        this.communicator.write(this.commandBuilder.toGetValue(address.msb, address.lsb), [true, true, true, true, true, true, true, true, true]);
     }
     
-    // TODO WRITE TEST
     /**
      * Callback if data receive and execute callbacks
      * @param data Data Array

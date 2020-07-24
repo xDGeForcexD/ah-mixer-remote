@@ -44,7 +44,7 @@ class ModuleSQLevelToMix extends ModuleLevelToMix {
 
         let address = this.calcAddress(mix, channel);
         let valueSend = this.encode(value);
-        this.communicator.write(this.commandBuilder.toSendValue(address.msb, address.lsb, valueSend.vc, valueSend.vf));
+        this.communicator.write(this.commandBuilder.toSendValue(address.msb, address.lsb, valueSend.vc, valueSend.vf), [true, true, true, true, true, true, true, true, false, true, true, false]);
     };
 
     /**
@@ -122,10 +122,9 @@ class ModuleSQLevelToMix extends ModuleLevelToMix {
         }
 
         let address = this.calcAddress(mix, channel);
-        this.communicator.write(this.commandBuilder.toGetValue(address.msb, address.lsb));
+        this.communicator.write(this.commandBuilder.toGetValue(address.msb, address.lsb), [true, true, true, true, true, true, true, true, true]);
     }
 
-    // TODO WRITE TEST
     /**
      * Callback if data receive and execute callbacks
      * @param data Data Array
