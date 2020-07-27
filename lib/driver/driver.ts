@@ -1,11 +1,14 @@
 import Module from "../module/module";
 import CommandBuilder from "../commandBuilder/commandBuilder";
+import IMixerDetail from "../types/structure/iMixerDetail";
 
 abstract class Driver {
     abstract key : string;
     abstract name: string;
     ip: string;
     abstract port: number;
+
+    abstract details : IMixerDetail;
 
     abstract commandBuilder : CommandBuilder;
     

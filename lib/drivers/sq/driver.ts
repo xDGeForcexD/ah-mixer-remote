@@ -8,12 +8,15 @@ import LevelToMix from "./modules/levelToMix";
 import Mute from "./modules/mute";
 import Scenes from "./modules/scenes";
 import Softkey from "./modules/softkey";
+import IMixerDetail from "../../types/structure/iMixerDetail";
 
 class DriverSQ extends Driver {
     key = "sq";
     name = "SQ Mixer";
 
     port = 51325;
+
+    details = { inputs: 48, fx: 4, aux: 12, groups: 12};
 
     commandBuilder : CommandBuilderSQ;
 
