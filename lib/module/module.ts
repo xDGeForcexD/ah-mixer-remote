@@ -1,5 +1,4 @@
 import Communicator from "../communicator/communicator";
-import ICallbackReceive from "../types/functions/iCallbackReceive";
 import IValue from "../types/structure/iValue";
 import CommandBuilder from "../commandBuilder/commandBuilder";
 import ICallbackValue from "../types/functions/iCallbackValue";

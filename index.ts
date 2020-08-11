@@ -1,6 +1,7 @@
 import Driver from "./lib/driver/driver";
 import * as Drivers from "./lib/drivers/drivers";
 import * as Types from "./lib/types/types";
+import * as ModuleTypes from "./lib/module/types/types";
 import DriverList from "./lib/driver/driverList";
 import Communicator from "./lib/communicator/communicator";
 import Module from "./lib/module/module";
@@ -67,4 +68,4 @@ class AHMixerRemote {
 
 
 export default AHMixerRemote;
-export {Drivers, Types, Module};
+export { DriverList, Drivers, Types, Module, ModuleTypes};
