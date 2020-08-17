@@ -6,11 +6,11 @@ import AHMixerRemote from "../index";
 import * as net from "net";
 import IValue from "../lib/types/structure/iValue";
 import ModuleSQLevelToMix from "../lib/drivers/sq/modules/levelToMix";
-import Mixes from "../lib/types/enums/mixes";
 import ValueLevel from "../lib/types/structure/valueLevel";
 import Communicator from "../lib/communicator/communicator";
 import { Module } from "module";
 import { LevelToMix } from "../lib/drivers/sq/driver";
+import IMix from "../lib/types/structure/iMix";
 
 const sinon = require("sinon");
 
@@ -121,8 +121,8 @@ describe("TestAHMixerRemote", function() {
         let dataSend = new Uint8Array([0xB0, 0x63, 0x43, 0xB0, 0x62, 0x54, 0xB0, 0x06, 0x79, 0xB0, 0x26, 0x40]);
 
         let module : ModuleSQLevelToMix = <ModuleSQLevelToMix> mixer.getModules().get("levelToMix");
-        module.addCallbackReiceveMix(function(mix: Mixes, channel: number, value: IValue) {
-            expect(mix, "mix").to.be.eq(Mixes.Aux5);
+        module.addCallbackReiceveMix(function(mix: "lr" | IMix, channel: number, value: IValue) {
+            expect(mix, "mix").to.be.deep.eq({mixType: "aux", mix: 5});
             expect(channel, "channel").to.be.eq(34);
             expect(value.value, "value").to.be.eq(3);
             called++;

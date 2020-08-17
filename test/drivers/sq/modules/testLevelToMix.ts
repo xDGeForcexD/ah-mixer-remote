@@ -4,10 +4,10 @@ import * as Communicator from "../../../../lib/communicator/communicator";
 import * as CommandBuilderSQ from "../../../../lib/drivers/sq/commandBuilder";
 import * as DriverSQ from "../../../../lib/drivers/sq/driver";
 import ModuleSQLevelToMix from "../../../../lib/drivers/sq/modules/levelToMix";
-import Mixes from "../../../../lib/types/enums/mixes";
 import ValueLevel from "../../../../lib/types/structure/valueLevel";
 import Driver from "../../../../lib/driver/driver";
 import IValue from "../../../../lib/types/structure/iValue";
+import Validator from "../../../../lib/validator/validator";
 
 const sinon = require("sinon");
 
@@ -17,7 +17,8 @@ describe("TestModuleSQLevelToMix", function() {
     let driverMock : MockManager<Driver>
     let driver : Driver;
     let communicator : Communicator.default;
-    let commandBuilder : CommandBuilderSQ.default;
+    let commandBuilder: CommandBuilderSQ.default;
+    let validator: Validator;
     let levelToMix : ModuleSQLevelToMix;
 
     const sandbox = sinon.createSandbox();
@@ -28,7 +29,8 @@ describe("TestModuleSQLevelToMix", function() {
         driver = new DriverSQ.default("111.222.333.444",1234);
         communicator = new Communicator.default(driver);
         commandBuilder = new CommandBuilderSQ.default();
-        levelToMix = new ModuleSQLevelToMix(commandBuilder);
+        validator = new Validator({ inputs: 48, aux: 12, groups: 12, fx: 4, scenes: 200, softkeys: 14 });
+        levelToMix = new ModuleSQLevelToMix(commandBuilder, validator);
     });
 
     afterEach(function() {
@@ -45,7 +47,7 @@ describe("TestModuleSQLevelToMix", function() {
 
         levelToMix.setValue(3, value);
 
-        expect(setValueMixStub.calledOnceWith(Mixes.LR, 3, value)).to.be.true;
+        expect(setValueMixStub.calledOnceWith("lr", 3, value)).to.be.true;
     });
 
     it("setValueMix LR", function() {
@@ -57,7 +59,7 @@ describe("TestModuleSQLevelToMix", function() {
         let sendStub = commandBuilderMock.mock("toSendValue", data);
         sendStub.callsFake(function(msb: number, lsb: number, vc: number, vf: number) : Uint8Array {
             expect(msb, "msb").to.be.eq(0x40);
-            expect(lsb, "lsb").to.be.eq(0x1a);
+            expect(lsb, "lsb").to.be.eq(0x0b);
             expect(vc, "vc").to.be.eq(0x7b);
             expect(vf, "vf").to.satisfy(function(num: number) { return num >= 0x2d && num <= 0x2f; });
             return data;
@@ -66,7 +68,7 @@ describe("TestModuleSQLevelToMix", function() {
         let value = new ValueLevel(5);
 
         levelToMix.setCommunicator(communicator);
-        levelToMix.setValueMix(Mixes.LR, 27, value);
+        levelToMix.setValueMix("lr", 12, value);
 
         expect(sendStub.calledOnce, "called commandBuilder").to.be.true;
         expect(writeStub.calledOnceWith(data), "called communicator write").to.be.true;
@@ -90,7 +92,7 @@ describe("TestModuleSQLevelToMix", function() {
         let value = new ValueLevel(-38);
 
         levelToMix.setCommunicator(communicator);
-        levelToMix.setValueMix(Mixes.Aux3, 5, value);
+        levelToMix.setValueMix({mixType: "aux", mix: 3}, 5, value);
 
         expect(sendStub.calledOnce, "called commandBuilder").to.be.true;
         expect(writeStub.calledOnceWith(data), "called communicator write").to.be.true;
@@ -114,7 +116,7 @@ describe("TestModuleSQLevelToMix", function() {
         let value = new ValueLevel(-10);
 
         levelToMix.setCommunicator(communicator);
-        levelToMix.setValueMix(Mixes.Aux8, 34, value);
+        levelToMix.setValueMix({mixType: "aux", mix: 8}, 34, value);
 
         expect(sendStub.calledOnce, "called commandBuilder").to.be.true;
         expect(writeStub.calledOnceWith(data), "called communicator write").to.be.true;
@@ -124,7 +126,7 @@ describe("TestModuleSQLevelToMix", function() {
         let value = new ValueLevel(10);
         let valueMixCall = sinon.spy(levelToMix, "setValueMix");
         try {
-            levelToMix.setValueMix(Mixes.Aux11, 13, value);
+            levelToMix.setValueMix({mixType: "aux", mix: 11}, 13, value);
           } catch (e) {
               expect(e.message).to.be.eq("no communicator is set");
           }
@@ -136,7 +138,7 @@ describe("TestModuleSQLevelToMix", function() {
         levelToMix.setCommunicator(communicator);
         let valueMixCall = sinon.spy(levelToMix, "setValueMix");
         try {
-            levelToMix.setValueMix(Mixes.Aux11, 49, value);
+            levelToMix.setValueMix({ mixType: "aux", mix: 11 }, 49, value);
           } catch (e) {
               expect(e.message).to.be.eq("wrong channel input");
           }
@@ -149,7 +151,7 @@ describe("TestModuleSQLevelToMix", function() {
 
         levelToMix.requestValue(2);
 
-        expect(requestValueMixStub.calledOnceWith(Mixes.LR, 2)).to.be.true;
+        expect(requestValueMixStub.calledOnceWith("lr", 2)).to.be.true;
     });
 
     it("requestValueMix Aux 5", function() {
@@ -166,7 +168,7 @@ describe("TestModuleSQLevelToMix", function() {
         });
 
         levelToMix.setCommunicator(communicator);
-        levelToMix.requestValueMix(Mixes.Aux5, 42);
+        levelToMix.requestValueMix({ mixType: "aux", mix: 5 }, 42);
 
         expect(sendStub.calledOnce, "called commandBuilder").to.be.true;
         expect(writeStub.calledOnceWith(data), "called communicator write").to.be.true;
@@ -176,7 +178,7 @@ describe("TestModuleSQLevelToMix", function() {
         let value = new ValueLevel(0);
         let reguestCall = sinon.spy(levelToMix, "requestValueMix");
         try {
-            levelToMix.requestValueMix(Mixes.Aux11, 54);
+            levelToMix.requestValueMix({ mixType: "aux", mix: 11 }, 54);
           } catch (e) {
               expect(e.message).to.be.eq("no communicator is set");
           }
@@ -188,7 +190,7 @@ describe("TestModuleSQLevelToMix", function() {
         levelToMix.setCommunicator(communicator);
         let reguestCall = sinon.spy(levelToMix, "requestValueMix");
         try {
-            levelToMix.requestValueMix(Mixes.Aux4, 0);
+            levelToMix.requestValueMix({ mixType: "aux", mix: 4 }, 0);
           } catch (e) {
               expect(e.message).to.be.eq("wrong channel input");
           }
@@ -201,7 +203,7 @@ describe("TestModuleSQLevelToMix", function() {
 
         levelToMix.incValue(7);
 
-        expect(incValueMixStub.calledOnceWith(Mixes.LR, 7)).to.be.true;
+        expect(incValueMixStub.calledOnceWith("lr", 7)).to.be.true;
     });
 
     it("incValueMix", function() {
@@ -218,7 +220,7 @@ describe("TestModuleSQLevelToMix", function() {
         });
 
         levelToMix.setCommunicator(communicator);
-        levelToMix.incValueMix(Mixes.Aux11, 21);
+        levelToMix.incValueMix({ mixType: "aux", mix: 11 }, 21);
 
         expect(sendStub.calledOnce, "called commandBuilder").to.be.true;
         expect(writeStub.calledOnceWith(data), "called communicator write").to.be.true;
@@ -230,7 +232,7 @@ describe("TestModuleSQLevelToMix", function() {
 
         levelToMix.decValue(32);
 
-        expect(decValueMixStub.calledOnceWith(Mixes.LR, 32)).to.be.true;
+        expect(decValueMixStub.calledOnceWith("lr", 32)).to.be.true;
     });
 
     it("decValueMix", function() {
@@ -247,7 +249,7 @@ describe("TestModuleSQLevelToMix", function() {
         });
 
         levelToMix.setCommunicator(communicator);
-        levelToMix.decValueMix(Mixes.LR, 3);
+        levelToMix.decValueMix("lr", 3);
 
         expect(sendStub.calledOnce, "called commandBuilder").to.be.true;
         expect(writeStub.calledOnceWith(data), "called communicator write").to.be.true;

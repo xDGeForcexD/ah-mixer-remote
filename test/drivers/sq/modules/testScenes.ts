@@ -6,6 +6,7 @@ import * as DriverSQ from "../../../../lib/drivers/sq/driver";
 import ModuleSQScenes from "../../../../lib/drivers/sq/modules/scenes";
 import Driver from "../../../../lib/driver/driver";
 import ValueState from "../../../../lib/types/structure/valueState";
+import Validator from "../../../../lib/validator/validator";
 
 const sinon = require("sinon");
 
@@ -16,6 +17,7 @@ describe("TestModuleSQScenes", function() {
     let driver : Driver;
     let communicator : Communicator.default;
     let commandBuilder : CommandBuilderSQ.default;
+    let validator: Validator;
     let scene : ModuleSQScenes;
 
     const sandbox = sinon.createSandbox();
@@ -27,7 +29,8 @@ describe("TestModuleSQScenes", function() {
         communicator = new Communicator.default(driver);
         commandBuilder = new CommandBuilderSQ.default();
         commandBuilder.midiChannel = 2;
-        scene = new ModuleSQScenes(commandBuilder);
+        validator = new Validator({ inputs: 12, aux: 6, groups: 4, fx: 7, scenes: 300, softkeys: 14 });
+        scene = new ModuleSQScenes(commandBuilder, validator);
     });
 
     afterEach(function() {

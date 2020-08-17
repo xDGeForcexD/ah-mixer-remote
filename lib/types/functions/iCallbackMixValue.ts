@@ -1,8 +1,8 @@
 import IValue from "../structure/iValue";
-import Mixes from "../enums/mixes";
+import IMix from "../structure/iMix";
 
 interface ICallbackMixValue {
-    (mix: Mixes, channel: number, value: IValue) : void;
+    (mix: "lr" | IMix, channel: number, value: IValue) : void;
 }
 
 export default ICallbackMixValue;

@@ -3,6 +3,8 @@ interface IMixerDetail {
     fx : number;
     aux : number;
     groups : number;
+    softkeys : number;
+    scenes : number;
 }
 
 export default IMixerDetail;

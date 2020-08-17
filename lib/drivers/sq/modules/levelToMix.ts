@@ -1,9 +1,10 @@
 import ModuleLevelToMix from "../../../module/types/levelToMix";
 import ValueLevel from "../../../types/structure/valueLevel";
-import Mixes from "../../../types/enums/mixes";
 import CommandBuilderSQ from "../commandBuilder";
 import ICallbackMixValue from "../../../types/functions/iCallbackMixValue";
 import IAddressRange from "../../../types/structure/iAddressRange";
+import Validator from "../../../validator/validator";
+import IMix from "../../../types/structure/iMix";
 
 class ModuleSQLevelToMix extends ModuleLevelToMix {
     driverRequiere: string = "sq";
@@ -11,10 +12,12 @@ class ModuleSQLevelToMix extends ModuleLevelToMix {
     receiverMix : ICallbackMixValue[] = [];
     addressRange : IAddressRange;
 
-    commandBuilder : CommandBuilderSQ;
-    constructor(commandBuilder: CommandBuilderSQ) {
+    commandBuilder: CommandBuilderSQ;
+    validator: Validator;
+    constructor(commandBuilder: CommandBuilderSQ, validator: Validator) {
         super(commandBuilder);
         this.commandBuilder = commandBuilder;
+        this.validator = validator;
         this.addressRange = {msb: {from: 0x40, to: 0x45}, lsb: {from: 0x00, to: 0x7f}};
     }
 
@@ -24,7 +27,7 @@ class ModuleSQLevelToMix extends ModuleLevelToMix {
      * @param value ValueLevel Class with Level from -inf db to +10db
      */
     setValue(channel: number, value: ValueLevel) : void {
-        this.setValueMix(Mixes.LR, channel, value);
+        this.setValueMix("lr", channel, value);
     }
 
     /**
@@ -33,14 +36,11 @@ class ModuleSQLevelToMix extends ModuleLevelToMix {
      * @param channel Input number 1 - 48 (e.g. Ip1)
      * @param value ValueLevel Class with Level from -inf db to +10db
      */
-    setValueMix(mix: Mixes, channel: number, value: ValueLevel) : void {
+    setValueMix(mix: "lr" | IMix, channel: number, value: ValueLevel) : void {
         if(this.communicator === null) {
             throw new Error("no communicator is set");
         }
-
-        if(!this.checkValidChannel(channel)) {
-            throw new Error("wrong channel input");
-        }
+        this.validator.checkMixAndInput(mix, channel);
 
         let address = this.calcAddress(mix, channel);
         let valueSend = this.encode(value);
@@ -52,7 +52,7 @@ class ModuleSQLevelToMix extends ModuleLevelToMix {
      * @param channel Input number 1 - 48 (e.g. Ip1)
      */
     incValue(channel: number) {
-        this.incValueMix(Mixes.LR, channel);
+        this.incValueMix("lr", channel);
     }
 
     /**
@@ -60,14 +60,11 @@ class ModuleSQLevelToMix extends ModuleLevelToMix {
      * @param mix Mixes Enum LR, Aux1 - Aux12
      * @param channel Input number 1 - 48 (e.g. Ip1)
      */
-    incValueMix(mix: Mixes, channel: number) {
+    incValueMix(mix: "lr" | IMix, channel: number) {
         if(this.communicator === null) {
             throw new Error("no communicator is set");
         }
-
-        if(!this.checkValidChannel(channel)) {
-            throw new Error("wrong channel input");
-        }
+        this.validator.checkMixAndInput(mix, channel);
 
         let address = this.calcAddress(mix, channel);
         this.communicator.write(this.commandBuilder.toSendInc(address.msb, address.lsb));
@@ -78,7 +75,7 @@ class ModuleSQLevelToMix extends ModuleLevelToMix {
      * @param channel Input number 1 - 48 (e.g. Ip1)
      */
     decValue(channel: number) {
-        this.decValueMix(Mixes.LR, channel);
+        this.decValueMix("lr", channel);
     }
 
     /**
@@ -86,14 +83,11 @@ class ModuleSQLevelToMix extends ModuleLevelToMix {
      * @param mix Mixes Enum LR, Aux1 - Aux12
      * @param channel Input number 1 - 48 (e.g. Ip1)
      */
-    decValueMix(mix: Mixes, channel: number) {
+    decValueMix(mix: "lr" | IMix, channel: number) {
         if(this.communicator === null) {
             throw new Error("no communicator is set");
         }
-
-        if(!this.checkValidChannel(channel)) {
-            throw new Error("wrong channel input");
-        }
+        this.validator.checkMixAndInput(mix, channel);
 
         let address = this.calcAddress(mix, channel);
         this.communicator.write(this.commandBuilder.toSendDec(address.msb, address.lsb));
@@ -104,7 +98,7 @@ class ModuleSQLevelToMix extends ModuleLevelToMix {
      * @param channel Input number 1 - 48 (e.g. Ip1)
      */
     requestValue(channel: number): void {
-        this.requestValueMix(Mixes.LR, channel);
+        this.requestValueMix("lr", channel);
     }
 
     /**
@@ -112,14 +106,11 @@ class ModuleSQLevelToMix extends ModuleLevelToMix {
      * @param mix Mixes Enum LR, Aux1 - Aux12
      * @param channel Input number 1 - 48 (e.g. Ip1)
      */
-    requestValueMix(mix: Mixes, channel: number) {
+    requestValueMix(mix: "lr" | IMix, channel: number) {
         if(this.communicator === null) {
             throw new Error("no communicator is set");
         }
-
-        if(!this.checkValidChannel(channel)) {
-            throw new Error("wrong channel input");
-        }
+        this.validator.checkMixAndInput(mix, channel);
 
         let address = this.calcAddress(mix, channel);
         this.communicator.write(this.commandBuilder.toGetValue(address.msb, address.lsb), [true, true, true, true, true, true, true, true, true]);
@@ -135,7 +126,7 @@ class ModuleSQLevelToMix extends ModuleLevelToMix {
             let value = this.commandBuilder.parseValue(data);
             let receiverParsed = this.calcMixChannel(receiver.msb, receiver.lsb);
             let valueParsed = new ValueLevel(this.decode(value.vc, value.vf));
-            if(receiverParsed.mix === Mixes.LR) {
+            if(receiverParsed.mix === "lr") {
                 this.receiver.forEach((callback) => {
                     callback(receiverParsed.channel, valueParsed);
                 });
@@ -161,12 +152,12 @@ class ModuleSQLevelToMix extends ModuleLevelToMix {
      * @param channel Input number 1 - 48 (e.g. Ip1)
      * @returns object from msb and lsb
      */
-    private calcAddress(mix: Mixes, channel: number) : {msb: number, lsb: number} {
+    private calcAddress(mix: "lr" | IMix, channel: number) : {msb: number, lsb: number} {
         let msb : number = 0x40;
         let lsb : number = channel-1;
 
-        if(mix !== Mixes.LR && mix >= Mixes.Aux1 && mix <= Mixes.Aux12) {
-            lsb = 0x44 + (channel-1)*12 + (mix - 1);
+        if(mix !== "lr" && mix.mixType === "aux") {
+            lsb = 0x44 + (channel-1)*12 + (mix.mix - 1);
             let ov = Math.floor(lsb / 0x80);
             if(ov > 0) {
                 lsb = lsb % 0x80;
@@ -183,33 +174,21 @@ class ModuleSQLevelToMix extends ModuleLevelToMix {
      * @param lsb LSB Value
      * @returns mix and channel number 
      */
-    private calcMixChannel(msb: number, lsb: number) : {mix: Mixes, channel: number} {
-        let mix : Mixes;
+    private calcMixChannel(msb: number, lsb: number): { mix: "lr" | IMix, channel: number} {
+        let mix: "lr" | IMix;
         let channel : number;
 
         msb = msb - 0x40; 
         if(msb === 0 && lsb >= 0x00 && lsb <=0x2f) {
-            mix = Mixes.LR;
+            mix = "lr";
             channel = lsb+1;
         } else {
             lsb = lsb - 0x44 + msb * 0x80;
             channel = Math.floor(lsb / 12) + 1;
-            mix = lsb % 12 + 1;
+            mix = {mixType: "aux", mix: lsb % 12 + 1};
         }
 
         return {mix: mix, channel: channel};
-    }
-
-    /**
-     * Check if Channel ist valid (Range 1 - 48)
-     * @param channel Input number 1 - 48 (e.g. Ip1)
-     * @returns true for its valid
-     */
-    private checkValidChannel(channel: number) : Boolean {
-        if(channel > 0 && channel < 49) {
-            return true;
-        }
-        return false;
     }
 
     /**

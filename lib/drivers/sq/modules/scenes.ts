@@ -1,10 +1,17 @@
 import ModuleScenes from "../../../module/types/scenes";
 import IValue from "../../../types/structure/iValue";
 import ValueState from "../../../types/structure/valueState";
+import CommandBuilderSQ from "../commandBuilder";
+import Validator from "../../../validator/validator";
 
 class ModuleSQScenes extends ModuleScenes {
     driverRequiere: string = "sq";
-    
+
+    validator: Validator;
+    constructor(commandBuilder: CommandBuilderSQ, validator: Validator) {
+        super(commandBuilder);
+        this.validator = validator;
+    }
     /**
      * Takes scene number and value to change the scene on the mixer
      * @param channel Scene number 1 - 300
@@ -24,10 +31,7 @@ class ModuleSQScenes extends ModuleScenes {
         if(this.communicator === null) {
             throw new Error("no communicator is set");
         }
-
-        if(scene < 1 || scene > 300) {
-            throw new Error("wrong scene input");
-        }
+        this.validator.checkScene(scene);
 
         this.communicator.write(new Uint8Array([0xB0+this.commandBuilder.midiChannel, 0x00, Math.floor((scene-1) / 0x80), 0xC0, Math.floor((scene-1) % 0x80)]), [true, true, false, true, true, false]);
     }

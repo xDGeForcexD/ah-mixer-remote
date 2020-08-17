@@ -2,6 +2,7 @@ import ModuleMute from "../../../module/types/mute";
 import CommandBuilderSQ from "../commandBuilder";
 import ValueState from "../../../types/structure/valueState";
 import IAddressRange from "../../../types/structure/iAddressRange";
+import Validator from "../../../validator/validator";
 
 class ModuleSQMute extends ModuleMute {
     driverRequiere: string = "sq";
@@ -9,10 +10,11 @@ class ModuleSQMute extends ModuleMute {
     addressRange : IAddressRange;
 
     commandBuilder : CommandBuilderSQ;
-    
-    constructor(commandBuilder: CommandBuilderSQ) {
+    validator: Validator;
+    constructor(commandBuilder: CommandBuilderSQ, validator: Validator) {
         super(commandBuilder);
         this.commandBuilder = commandBuilder;
+        this.validator = validator;
         this.addressRange = {msb: {from: 0x00, to: 0x00}, lsb: {from: 0x00, to: 0x2f}};
     }
 
@@ -25,10 +27,7 @@ class ModuleSQMute extends ModuleMute {
         if(this.communicator === null) {
             throw new Error("no communicator is set");
         }
-
-        if(!this.checkValidChannel(channel)) {
-            throw new Error("wrong channel input");
-        }
+        this.validator.checkInput(channel);
 
         let address = this.calcAddress(channel);
         this.communicator.write(this.commandBuilder.toSendValue(address.msb, address.lsb, 0, value.value ? 1 : 0), [true, true, true, true, true, true, true, true, true, true, true, false]);
@@ -42,10 +41,7 @@ class ModuleSQMute extends ModuleMute {
         if(this.communicator === null) {
             throw new Error("no communicator is set");
         }
-
-        if(!this.checkValidChannel(channel)) {
-            throw new Error("wrong channel input");
-        }
+        this.validator.checkInput(channel);
 
         let address = this.calcAddress(channel);
         this.communicator.write(this.commandBuilder.toSendInc(address.msb, address.lsb), [true, true, true, true, true, true, true, true, true]);
@@ -59,10 +55,7 @@ class ModuleSQMute extends ModuleMute {
         if(this.communicator === null) {
             throw new Error("no communicator is set");
         }
-
-        if(!this.checkValidChannel(channel)) {
-            throw new Error("wrong channel input");
-        }
+        this.validator.checkInput(channel);
 
         let address = this.calcAddress(channel);
         this.communicator.write(this.commandBuilder.toGetValue(address.msb, address.lsb), [true, true, true, true, true, true, true, true, true]);
@@ -104,19 +97,6 @@ class ModuleSQMute extends ModuleMute {
     private calcChannel(msb: number, lsb: number) : number {
         return lsb+1;
     }
-
-    /**
-     * Check if Channel ist valid (Range 1 - 48)
-     * @param channel Input number 1 - 48 (e.g. Ip1)
-     * @returns true for its valid
-     */
-    private checkValidChannel(channel: number) : Boolean {
-        if(channel > 0 && channel < 49) {
-            return true;
-        }
-        return false;
-    }
-
 }
 
 export default ModuleSQMute;

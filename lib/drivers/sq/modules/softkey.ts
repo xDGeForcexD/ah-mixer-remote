@@ -1,10 +1,18 @@
 import ModuleSoftkey from "../../../module/types/softkey";
 import ValueState from "../../../types/structure/valueState";
+import Validator from "../../../validator/validator";
+import CommandBuilderSQ from "../commandBuilder";
 
 
 class ModuleSQSoftkey extends ModuleSoftkey {
     driverRequiere: string = "sq";
 
+    validator: Validator;
+    constructor(commandBuilder: CommandBuilderSQ, validator: Validator) {
+        super(commandBuilder);
+        this.validator = validator;
+    }
+    
     /**
      * Takes softkey number and value to execute the softkey on the mixer
      * @param channel Softkey number 1 - 16
@@ -15,9 +23,7 @@ class ModuleSQSoftkey extends ModuleSoftkey {
             throw new Error("no communicator is set");
         }
 
-        if(channel < 1 || channel > 16) {
-            throw new Error("wrong softkey input");
-        }
+        this.validator.checkSoftkey(channel);
 
         let data = new Uint8Array(3);
         if(value.value) {

@@ -6,6 +6,7 @@ import * as DriverSQ from "../../../../lib/drivers/sq/driver";
 import ModuleSQSoftkey from "../../../../lib/drivers/sq/modules/softkey";
 import Driver from "../../../../lib/driver/driver";
 import ValueState from "../../../../lib/types/structure/valueState";
+import Validator from "../../../../lib/validator/validator";
 
 const sinon = require("sinon");
 
@@ -15,7 +16,8 @@ describe("TestModuleSQSoftkey", function() {
     let driverMock : MockManager<Driver>
     let driver : Driver;
     let communicator : Communicator.default;
-    let commandBuilder : CommandBuilderSQ.default;
+    let commandBuilder: CommandBuilderSQ.default;
+    let validator: Validator;
     let softkey : ModuleSQSoftkey;
 
     const sandbox = sinon.createSandbox();
@@ -27,7 +29,8 @@ describe("TestModuleSQSoftkey", function() {
         communicator = new Communicator.default(driver);
         commandBuilder = new CommandBuilderSQ.default();
         commandBuilder.midiChannel = 1;
-        softkey = new ModuleSQSoftkey(commandBuilder);
+        validator = new Validator({ inputs: 12, aux: 6, groups: 4, fx: 7, scenes: 300, softkeys: 14 });
+        softkey = new ModuleSQSoftkey(commandBuilder, validator);
     });
 
     afterEach(function() {

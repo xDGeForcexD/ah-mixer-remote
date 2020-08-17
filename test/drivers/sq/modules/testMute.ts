@@ -7,6 +7,7 @@ import Driver from "../../../../lib/driver/driver";
 import ModuleSQMute from "../../../../lib/drivers/sq/modules/mute";
 import ValueState from "../../../../lib/types/structure/valueState";
 import IValue from "../../../../lib/types/structure/iValue";
+import Validator from "../../../../lib/validator/validator";
 
 const sinon = require("sinon");
 
@@ -16,7 +17,8 @@ describe("TestModuleSQMute", function() {
     let driverMock : MockManager<Driver>
     let driver : Driver;
     let communicator : Communicator.default;
-    let commandBuilder : CommandBuilderSQ.default;
+    let commandBuilder: CommandBuilderSQ.default;
+    let validator: Validator;
     let mute : ModuleSQMute;
 
     const sandbox = sinon.createSandbox();
@@ -27,7 +29,8 @@ describe("TestModuleSQMute", function() {
         driver = new DriverSQ.default("111.222.333.444",1234);
         communicator = new Communicator.default(driver);
         commandBuilder = new CommandBuilderSQ.default();
-        mute = new ModuleSQMute(commandBuilder);
+        validator = new Validator({ inputs: 48, aux: 6, groups: 4, fx: 7, scenes: 200, softkeys: 14 });
+        mute = new ModuleSQMute(commandBuilder, validator);
     });
 
     afterEach(function() {

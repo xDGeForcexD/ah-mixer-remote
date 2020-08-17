@@ -9,6 +9,7 @@ import LevelMaster from "./modules/levelMaster";
 import Mute from "./modules/mute";
 import Scenes from "./modules/scenes";
 import Softkey from "./modules/softkey";
+import Validator from "../../validator/validator";
 
 class DriverSQ extends Driver {
     key = "sq";
@@ -16,9 +17,10 @@ class DriverSQ extends Driver {
 
     port = 51325;
 
-    details = { inputs: 48, fx: 4, aux: 12, groups: 12, softkeys: 16};
+    details = { inputs: 48, fx: 4, aux: 12, groups: 12, softkeys: 16, scenes: 300};
 
     commandBuilder : CommandBuilderSQ;
+    validator: Validator;
 
     constructor(ip : string, port? : number) {
         super(ip);
@@ -27,15 +29,16 @@ class DriverSQ extends Driver {
         }
 
         this.commandBuilder = new CommandBuilderSQ();
+        this.validator = new Validator(this.details);
 
         // add specific driver modules
         // add new module if exists
         let modules : Module[] = [];
-        modules.push(new LevelToMix(this.commandBuilder));
-        modules.push(new LevelMaster(this.commandBuilder));
-        modules.push(new Mute(this.commandBuilder));
-        modules.push(new Scenes(this.commandBuilder));
-        modules.push(new Softkey(this.commandBuilder));
+        modules.push(new LevelToMix(this.commandBuilder, this.validator));
+        modules.push(new LevelMaster(this.commandBuilder, this.validator));
+        modules.push(new Mute(this.commandBuilder, this.validator));
+        modules.push(new Scenes(this.commandBuilder, this.validator));
+        modules.push(new Softkey(this.commandBuilder, this.validator));
 
         // formating modules to use easy
         modules.forEach(module => {
